@@ -1,19 +1,29 @@
 import jwt from 'jsonwebtoken';
 
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers.authorization;
 
-/* decodes token and extracts payload, making the user ID
-avavilable for use in subsequent routes */
-export const verifyToken = (req, res, next) => {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(403).json({ error: 'Authorization token missing or malformed' });
+    }
+
+    const token = authHeader.split(' ')[1]; // Extract the token after "Bearer"
+
     try {
-        const token = req.headers.authorization.split(" ")[1]; //extract token from header
+        // Verify the token and decode its payload
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        req.user = decoded; //if valid, adds decoded user info to the request object
+        // Attach the decoded user information to the req object
+        req.user = {
+            id: decoded.id,       // Assuming the token contains the user ID as "id"
+            username: decoded.username, // Include other properties from the token if needed
+        };
 
+        // Call the next middleware or route handler
         next();
     } catch (error) {
-        // 403 is forbidden status
-        res.status(403).json({ error: "Invalid or expired token" });
+        console.error('Token verification failed:', error);
+        res.status(403).json({ error: 'Invalid or expired token' });
     }
 };
 

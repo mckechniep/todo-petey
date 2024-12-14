@@ -5,54 +5,51 @@ import EditToDoForm from "./EditToDoForm.jsx";
 const ToDoList = ({ todos, setTodos }) => {
   const [groupedTodos, setGroupedTodos] = useState({});
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [editingToDo, setEditingToDo] = useState(null); // Tracks the ToDo being edited
+  const [editingToDo, setEditingToDo] = useState(null);
 
-    // Ensure todos is an array before using array methods
-    const todosArray = Array.isArray(todos) ? todos : [];
+  useEffect(() => {
+    // 1. Convert todos object to an array of todos
+    const todosArray = Object.values(todos || {}).flat();
 
-  // Grouping function to organize todos by category
-  const groupByCategory = (todos) => {
-    return todos.reduce((groups, todo) => {
-      const category = todo.category;
-      if (!groups[category]) {
-        groups[category] = [];
-      }
+    // 2. Group the array by category
+    const grouped = groupByCategory(todosArray);
+    setGroupedTodos(grouped);
+
+    // IMPORTANT: Update the todos state to be the array version
+    
+  }, [todos]);
+
+  const groupByCategory = (todosArray) => {
+    return todosArray.reduce((groups, todo) => {
+      const category = todo.category || "Uncategorized";
+      groups[category] = groups[category] || []; // Ensure category exists
       groups[category].push(todo);
       return groups;
     }, {});
   };
 
-  // Update groupedTodos whenever todos or selectedCategory changes
-  useEffect(() => {
-    const grouped = groupByCategory(todosArray);
-    setGroupedTodos(grouped);
-  }, [todosArray]);
+  const filteredTodos = selectedCategory === "All"
+      ? todos
+      : todos && Array.isArray(todos) ? todos.filter((todo) => (todo.category || "Uncategorized").toLowerCase() === selectedCategory.toLowerCase()) : [];
 
-  // Filtered todos based on selected category
-  const filteredTodos =
-     selectedCategory === "All"
-      ? todosArray
-      : todosArray.filter((todo) => todo.category === selectedCategory);
 
-  // Update the list of ToDos after editing
   const handleUpdate = (updatedToDo) => {
     setTodos((prevTodos) =>
       prevTodos.map((todo) =>
         todo._id === updatedToDo._id ? updatedToDo : todo
       )
     );
-    setEditingToDo(null); // Close the edit form
+    setEditingToDo(null);
   };
 
   const handleCancel = () => {
-    setEditingToDo(null); // Close the edit form without saving changes
+    setEditingToDo(null);
   };
 
   return (
     <div>
       <h1>ToDo List</h1>
 
-      {/* Render Edit Form if a ToDo is being edited */}
       {editingToDo ? (
         <EditToDoForm
           todo={editingToDo}
@@ -61,7 +58,6 @@ const ToDoList = ({ todos, setTodos }) => {
         />
       ) : (
         <>
-          {/* Category Filter */}
           <label htmlFor="categoryFilter">Filter by Category:</label>
           <select
             id="categoryFilter"
@@ -82,13 +78,16 @@ const ToDoList = ({ todos, setTodos }) => {
             Clear Filter
           </button>
 
-          {/* Render the ToDo List */}
-    
           <ul>
             {filteredTodos.map((todo) => (
               <li key={todo._id}>
                 <Link to={`/todos/${todo._id}`}>{todo.title}</Link>
-                <button onClick={() => setEditingToDo(todo)}>Edit</button>
+                <button
+                  onClick={() => setEditingToDo(todo)}
+                  disabled={editingToDo && editingToDo._id !== todo._id}
+                >
+                  Edit
+                </button>
               </li>
             ))}
           </ul>

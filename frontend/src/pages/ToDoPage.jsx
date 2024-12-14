@@ -19,7 +19,7 @@ const ToDoPage = () => {
         const fetchTodos = async () => {
             try {
                 const data = await getTodos(); // Fetch todos from the backend
-                setTodos(data); // Set the fetched todos in state
+                setTodos(Array.isArray(data) ? data : []); // ensure todos is an array
                 setLoading(false); // Stop loading
             } catch (err) {
                 console.error("Error fetching todos:", err);

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signup } from '../services/authService.js';
+import { TextField, Button, Container, Typography, Box } from '@mui/material';
+
 
 const Signup = () => {
     /*  useState hook is initializing a state variable called formData
@@ -12,6 +14,9 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            if (formData.password !== formData.confirmPassword) {
+                alert('Passwords must match!')
+            }
             const response = await signup(formData);
             console.log('User signed up:', response);
             alert('User signed up successfully');

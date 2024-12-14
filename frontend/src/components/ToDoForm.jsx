@@ -13,17 +13,12 @@ const ToDoForm = ({ onSubmit }) => {
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('A List');
     const [completed, setCompleted] = useState(false);
+    const { user, loading } = useAuth();
     const [error, setError] = useState(null);
 
-    const { user } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!user) {
-            setError("User not logged in."); // Handle cases where user is not logged in
-            return;
-        }
 
         try {
             const newToDo = {
@@ -44,9 +39,19 @@ const ToDoForm = ({ onSubmit }) => {
             setCompleted(false);
         } catch (error) {
             setError("Failed to create ToDo");
+            console.log("it's fucked innit");
             console.error("Error creating ToDo:", error);
         }
     };
+
+    if (loading) {
+        return <div>Loading user data...</div>; // Or a spinner
+    }
+
+    if (!user) {
+        return <div>Please log in to create ToDos.</div>;
+    }
+    
 
     return (
         <form onSubmit={handleSubmit}>

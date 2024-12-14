@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../services/AuthContext'; // Import AuthContext
 import { login } from '../services/authService';
 import { TextField, Button, Typography, Box, CircularProgress } from '@mui/material';
 
 const LoginPage = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState('');
+    const { setUser } = useAuth(); //access setUser function
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -16,7 +18,8 @@ const LoginPage = () => {
         setLoading(true); // Set loading to true during login
 
         try {
-            await login({ email, password });
+            const res = await login({ username, password });
+            setUser(res.user);
             navigate('/todos'); // Navigate to the todos page upon successful login
         } catch (err) {
             setError(err.message || 'Login failed'); // Display error message
@@ -52,12 +55,12 @@ const LoginPage = () => {
                 }}
             >
                 <TextField
-                    id="email"
-                    label="Email"
-                    type="email"
+                    id="username"
+                    label="Username"
+                    type="username"
                     variant="outlined"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                     fullWidth
                 />

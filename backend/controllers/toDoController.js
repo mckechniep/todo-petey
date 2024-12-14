@@ -3,7 +3,7 @@ import User from "../models/user.js";
 
 export const createToDo = async (req, res) => {
   try {
-    const { title, description, category, completed, createdAt } = req.body;
+    const { title, description, category, completed } = req.body;
     const userId = req.user.id; // get userId from verified token
 
     const user = await User.findById(userId);
@@ -17,23 +17,18 @@ export const createToDo = async (req, res) => {
 
     //when saving to DB, explicitly mapping fields to db schema
     //validates our fields against the schema, protects against malicious code, and more
-    //we are using these destructured fields instead of ToDo.create(req.body)
-    const newToDo = await ToDo.create({
+    //we are using these destructured fields instead of (req.body)
+    const newToDo = new ToDo({
       title,
       description,
       category,
       completed,
-      createdAt,
       user: userId, //creates relationship between the todo and user in the DB
     });
 
-    user.todos.push(newToDo._id);
-    await user.save();
-
-    res.status(201).json({
-      message: "ToDo created succesfully",
-      toDo: newToDo,
-    });
+    
+    const savedToDo = await newToDo.save();
+    res.status(201).json(savedToDo);
   } catch (error) {
     console.error("Error creating ToDo:", error);
     res.status(500).json({ error: "Internal server error" });

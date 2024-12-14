@@ -28,6 +28,9 @@ export const getToDoById = async (id) => {
 
 export const createToDo = async (todoData) => {
   const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("User is not authenticated. Token is missing.");
+  }
   try {
     const res = await api.post("/todos", todoData, {
       headers: { Authorization: `Bearer ${token}` },

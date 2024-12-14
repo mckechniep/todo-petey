@@ -74,10 +74,10 @@ export const signin = async (req, res) => {
         const token = jwt.sign(
             {id: user._id, username: user.username }, //payload
             process.env.JWT_SECRET,
-            { exppiresIn: "1h"}
+            { expiresIn: "1h"}
         );
 
-        res.status(200).json({ token });
+        res.status(200).json({ user, token });
     } catch (error) {
         res.status(500).json({ error: "Internal server error" })
 

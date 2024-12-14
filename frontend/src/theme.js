@@ -11,6 +11,7 @@ const theme = createTheme({
         },
     },
     typography: {
+        fontFamily: 'Roboto, Arial, sans-serif', // Set Roboto as the default font
         h4: {
             fontSize: '1.5rem',
             fontWeight: 600,
