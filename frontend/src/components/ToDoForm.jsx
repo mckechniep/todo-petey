@@ -39,7 +39,6 @@ const ToDoForm = ({ onSubmit }) => {
             setCompleted(false);
         } catch (error) {
             setError("Failed to create ToDo");
-            console.log("it's fucked innit");
             console.error("Error creating ToDo:", error);
         }
     };

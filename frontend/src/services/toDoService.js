@@ -28,6 +28,7 @@ export const getToDoById = async (id) => {
 
 export const createToDo = async (todoData) => {
   const token = localStorage.getItem("token");
+  console.log("todoData:", todoData);
   if (!token) {
     throw new Error("User is not authenticated. Token is missing.");
   }

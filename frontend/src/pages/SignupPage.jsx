@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signup } from '../services/authService.js';
-import { TextField, Button, Container, Typography, Box } from '@mui/material';
+import { useAuth } from '../services/AuthContext.jsx';
+// import { TextField, Button, Container, Typography, Box } from '@mui/material';
 
 
 const Signup = () => {
@@ -9,6 +10,7 @@ const Signup = () => {
         formData is an object with 2 properties (username & password) 
         setFormData is a function that will update the formData state */
     const [formData, setFormData] = useState({ username: '', password: '', confirmPassword: ''});
+    const { setUser } = useAuth();
     const navigate = useNavigate(); // hook to programmatically navigate
 
     const handleSubmit = async (e) => {
@@ -16,11 +18,16 @@ const Signup = () => {
         try {
             if (formData.password !== formData.confirmPassword) {
                 alert('Passwords must match!')
+                return;
             }
-            const response = await signup(formData);
-            console.log('User signed up:', response);
-            alert('User signed up successfully');
-            navigate('/todos');
+
+            await signup(formData, (user) => {
+                setUser(user);
+                alert('User signed up successfully');
+                navigate('/todos');
+            });
+            
+           
         } catch (error) {
             console.error('Error during signup:', error);
             alert('Signup failed');

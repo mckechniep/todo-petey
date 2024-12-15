@@ -17,14 +17,17 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            try {  // Add a try-catch block
-                setUser(JSON.parse(storedUser));
+            try {
+                const parsedUser = JSON.parse(storedUser);
+                if (parsedUser._id) { // Ensure _id exists
+                    setUser(parsedUser);
+                } else {
+                    console.warn("User object from localStorage is missing _id");
+                    localStorage.removeItem('user'); // Clear invalid data
+                }
             } catch (error) {
                 console.error("Error parsing user from localStorage:", error);
-                // Handle the error.  Options include:
-                localStorage.removeItem('user'); // Remove the invalid data
-                // Show an error message to the user (if appropriate)
-                // Or simply ignore and continue with user = null
+                localStorage.removeItem('user'); // Clear invalid data
             }
         }
         setLoading(false);

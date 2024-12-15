@@ -40,10 +40,10 @@ export const signup = async (req, res) => {
                     username: newUser.username 
                 },
                 process.env.JWT_SECRET,
-                { expiresIn: "1h" }
+                { expiresIn: "7d" }
             );
     
-            res.status(200).json({ token });
+            res.status(200).json({ newUser, token });
         } catch (error) {
             console.error('Sign up error:', error);
             res.status(500).json({ error: 'Internal server error' });
@@ -74,7 +74,7 @@ export const signin = async (req, res) => {
         const token = jwt.sign(
             {id: user._id, username: user.username }, //payload
             process.env.JWT_SECRET,
-            { expiresIn: "1h"}
+            { expiresIn: "7d"}
         );
 
         res.status(200).json({ user, token });
