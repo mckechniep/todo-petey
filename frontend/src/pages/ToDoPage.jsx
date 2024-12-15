@@ -7,16 +7,20 @@ import React, { useState, useEffect } from 'react';
 import ToDoList from '../components/ToDoList.jsx';
 import ToDoForm from '../components/ToDoForm.jsx';
 import { getTodos } from '../services/toDoService.js';
+import { useAuth } from '../services/AuthContext.jsx';
 
 const ToDoPage = () => {
     const [todos, setTodos] = useState([]); // Holds the list of ToDos
     const [showForm, setShowForm] = useState(false); // Controls visibility of the ToDoForm
     const [loading, setLoading] = useState(true); // Tracks loading state
     const [error, setError] = useState(null); // Tracks errors during fetching
+    const { user, loading: authLoading } = useAuth();
 
     // Fetch ToDos from the backend when the component mounts
     useEffect(() => {
+        if (!authLoading && user) {
         const fetchTodos = async () => {
+            console.log(localStorage.getItem("token"))
             try {
                 const data = await getTodos(); // Fetch todos from the backend
                 setTodos(Array.isArray(data) ? data : []); // ensure todos is an array
@@ -27,9 +31,9 @@ const ToDoPage = () => {
                 setLoading(false);
             }
         };
-
-        fetchTodos(); // Call the fetch function on component mount
-    }, []);
+        fetchTodos();
+        }
+    }, [authLoading, user]);
 
     // Handles adding a new ToDo and updates the todos state
     const handleCreateToDo = (newToDo) => {

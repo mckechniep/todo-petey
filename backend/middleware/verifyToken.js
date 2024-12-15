@@ -2,24 +2,62 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 
 const verifyToken = async (req, res, next) => {
-    try {
-        const token = req.headers.authorization.split(' ')[1]; // Get token from header
-        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify and decode
+    const authHeader = req.headers.authorization;
 
-        const user = await User.findById(decoded._id); // Find user by ID
-        if (!user) {
-            return res.status(401).json({ error: 'Unauthorized' });
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Ensure decoded contains the fields you expect
+        if (!decoded._id) {
+            return res.status(401).json({ error: 'Token payload invalid' });
         }
 
-        req.user = user; // Add user to request object
-        next(); // Proceed to the next middleware/route handler
+        const user = await User.findById(decoded._id);
+        if (!user) {
+            return res.status(401).json({ error: 'User not found or unauthorized' });
+        }
+
+        req.user = user; 
+        next(); 
     } catch (error) {
-        console.error('Authentication error:', error);
-        res.status(401).json({ error: 'Unauthorized' });
+        console.error('Authentication error:', error.message);
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 };
 
 export default verifyToken;
+
+
+
+
+// import jwt from 'jsonwebtoken';
+// import User from '../models/user.js';
+
+// const verifyToken = async (req, res, next) => {
+//     try {
+//         const token = req.headers.authorization.split(' ')[1]; // Get token from header
+//         const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify and decode
+
+//         const user = await User.findById(decoded._id); // Find user by ID
+//         if (!user) {
+//             return res.status(401).json({ error: 'Unauthorized' });
+//         }
+
+//         req.user = user; // Add user to request object
+//         next(); // Proceed to the next middleware/route handler
+//     } catch (error) {
+//         console.error('Authentication error:', error);
+//         res.status(401).json({ error: 'Unauthorized' });
+//     }
+// };
+
+// export default verifyToken;
 
 
 

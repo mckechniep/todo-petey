@@ -38,7 +38,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(user));
         } else {
             localStorage.removeItem('user'); // Remove user from localStorage if null
-            localStorage.removeItem('token'); // Remove token as well for consistency
         }
     }, [user]);
 

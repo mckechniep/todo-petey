@@ -8,7 +8,7 @@ export const signup = async (userData, onSuccess) => {
 
     localStorage.setItem('token', res.data.token);
     // Store user data in localStorage
-    localStorage.setItem('user', JSON.stringify(res.data)); // Store the user object
+    localStorage.setItem('user', JSON.stringify(res.data.user)); // Store the user object
     if (onSuccess) {
         onSuccess(res.data); // Call the callback with user data
       }
@@ -20,7 +20,8 @@ export const login = async (userData) => {
 
     localStorage.setItem('token', res.data.token);
     // Store user data in localStorage
-    localStorage.setItem('user', JSON.stringify(res.data)); // Store the user object
-
+    localStorage.setItem('user', JSON.stringify(res.data.user)); // Store the user object
+    
+  
     return res.data;
 };
