@@ -13,8 +13,8 @@ const verifyToken = async (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
-        // Ensure decoded contains the fields you expect
-        if (!decoded._id) {
+        //  check for both _id and username in the decoded token. If either is missing, return an error
+        if (!decoded._id || !decoded.username) {
             return res.status(401).json({ error: 'Token payload invalid' });
         }
 
@@ -23,7 +23,9 @@ const verifyToken = async (req, res, next) => {
             return res.status(401).json({ error: 'User not found or unauthorized' });
         }
 
-        req.user = user; 
+        // Attach user and username to the request object
+        req.user = user; // assigns the full user object (retrieved from the database) to the req.user property
+        req.username = decoded.username; // ssigns the username extracted from the decoded token payload to the req.username property.
         next(); 
     } catch (error) {
         console.error('Authentication error:', error.message);

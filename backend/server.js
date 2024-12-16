@@ -1,4 +1,5 @@
 import express from "express";
+import logger from "morgan";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -15,16 +16,17 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors()); // enables cross-origin resource sharing
 app.use(express.json()); //  parses incoming JSON requests
+app.use(logger("dev"));
 
 
 app.use('/api/users', usersRouter)
 app.use('/api/todos', toDoRouter);
 
-const MONGO_URI = process.env.MONGO_URI;
+const MONGODB_URI = process.env.MONGODB_URI;
 
 
 // Connecting to MongoDB
-mongoose.connect(MONGO_URI)
+mongoose.connect(MONGODB_URI)
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('Connection error:', err));
 

@@ -25,7 +25,6 @@ export const createToDo = async (req, res) => {
       completed,
       user: userId, //creates relationship between the todo and user in the DB
     });
-
     
     const savedToDo = await newToDo.save();
     res.status(201).json(savedToDo);
@@ -35,21 +34,25 @@ export const createToDo = async (req, res) => {
   }
 };
 
+
 export const getToDos = async (req, res) => {
   try {
-    const userId = req.user.id; // get userId from the verified token
+    const userId = req.user._id; // req.user is set via middleware (verifyToken)
 
-    const todos = await ToDo.find({ user: userId }).sort({ createdAt: -1 });
+     // Find all todos associated with the logged-in user
+    const todos = await ToDo.find({ user: userId });
 
-    res.status(200).json({
-      message: "ToDos retrieved succsesfully",
-      todos: todos,
-    });
+    if (!todos) {
+      return res.status(404).json({ error: "No ToDos found for this user" });;
+    }
+    // return the todos array
+    res.status(200).json(todos);
   } catch (error) {
     console.error("Error fetching ToDos:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 export const getToDoById = async (req, res) => {
   try {
@@ -67,6 +70,7 @@ export const getToDoById = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 export const editToDo = async (req, res) => {
   const { id } = req.params; //getting the To-Do ID, as we use to find toDo by ID in DB
@@ -101,6 +105,7 @@ export const editToDo = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 export const deleteToDo = async (req, res) => {
   const { id } = req.params;

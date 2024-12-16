@@ -8,7 +8,7 @@ dotenv.config();
 // Sign-up route controller logic
 export const signup = async (req, res) => {
     try {
-        //destrucutre certain feilds for validation or other operations
+        //destrucutre certain fields from request body, for validation or other operations
         const { 
                 username, 
                 password, 
@@ -28,10 +28,12 @@ export const signup = async (req, res) => {
             }
 
             const saltRounds = parseInt(process.env.SALT_ROUNDS) || 12;
-            //replace password with hashed password     
+            // hashes password w/ specified salt rounds 
             const hashedPassword = await bcrypt.hash(password, saltRounds);
+            //  Replaces the plain text password in the request body with the hashed password.
             req.body.password = hashedPassword;
 
+            // creats a new user in the database with the data in req.boy
             const newUser = await User.create(req.body);
             
             const token = jwt.sign(
@@ -57,7 +59,7 @@ export const signin = async (req, res) => {
         const { username, password } = req.body;
 
         if (!username || !password) {
-            return res.status(400).json({ error: "Username and password are required"});
+            return res.status(400).json({ error: "Username and password are required" });
         }
 
         const user = await User.findOne({ username })

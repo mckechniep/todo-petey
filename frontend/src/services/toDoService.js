@@ -4,19 +4,15 @@ import api from "./api.js";
 defined elsewhere and handles making HTTP requests) to send a 
 request to the server at the /todos endpoint. It includes the 
 retrieved token in the request's Authorization header. */
-export const getTodos = async () => {
+export const getToDos = async () => {
   // retrieve stored jwt token
   const token = localStorage.getItem("token");
   const res = await api.get("/todos", {
     headers: { Authorization: `Bearer ${token}` },
   });
-  return res.data;
+  return res.data; //expecting the todos array from the backend
 };
-/* The server is expected to respond with data representing the
-to-do items. The getTodos function extracts the actual to-do data
-from the server's response (using res.data) and returns it. This
-returned data is what other parts of the application would use 
-to display or manipulate the to-dos. */
+/* The server is expected to respond with a the user's todos array */
 
 export const getToDoById = async (id) => {
     const token = localStorage.getItem("token");
@@ -28,7 +24,6 @@ export const getToDoById = async (id) => {
 
 export const createToDo = async (todoData) => {
   const token = localStorage.getItem("token");
-  console.log("todoData:", todoData);
   if (!token) {
     throw new Error("User is not authenticated. Token is missing.");
   }
@@ -58,3 +53,5 @@ export const editToDo = async (id, updatedToDo) => {
         throw error;
     }
 };
+
+// export default getToDos;

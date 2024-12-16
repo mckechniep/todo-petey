@@ -28,9 +28,10 @@ const ToDoForm = ({ onSubmit }) => {
                 completed,
                 user: user._id,
             };
-
+            console.log("Sending ToDo to API:", newToDo);   
             // call the API to create the ToDo
             const createdToDo = await createToDo(newToDo);
+            console.log("Received Created ToDo from API:", createdToDo);
             onSubmit(createdToDo); 
 
             setTitle('');

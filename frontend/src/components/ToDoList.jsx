@@ -1,37 +1,64 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import EditToDoForm from "./EditToDoForm.jsx";
+import { getToDos } from "../services/toDoService.js"; // Updated import to match new function name
+import { useAuth } from "../services/AuthContext.jsx";
 
-const ToDoList = ({ todos, setTodos }) => {
-  const [groupedTodos, setGroupedTodos] = useState({});
+const ToDoList = ({ newToDo }) => {
+  const [todos, setTodos] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [editingToDo, setEditingToDo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const { user, loading: authLoading } = useAuth();
 
+  // Load todos from local storage on initial render
   useEffect(() => {
-    // 1. Convert todos object to an array of todos
-    const todosArray = Object.values(todos || {}).flat();
+    const storedTodos = localStorage.getItem("todos");
+    if (storedTodos) {
+      setTodos(JSON.parse(storedTodos));
+      setLoading(false);
+    }
+  }, []);
 
-    // 2. Group the array by category
-    const grouped = groupByCategory(todosArray);
-    setGroupedTodos(grouped);
+  // Fetch todos when user is authenticated
+  useEffect(() => {
+    const fetchTodos = async () => {
+      if (!authLoading && user) {
+        try {
+          const data = await getToDos(); // Call the updated getToDos function
+          setTodos(data);
+          localStorage.setItem('todos', JSON.stringify(data));
+          setLoading(false);
+        } catch (err) {
+          console.error("Error fetching todos:", err);
+          setError("Failed to fetch todos. Please try again later.");
+          setLoading(false);
+        }
+      }
+    };
+    fetchTodos();
+  }, [authLoading, user]);
 
-    // IMPORTANT: Update the todos state to be the array version
-    
+  // Whenever todos change, update local storage
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
   }, [todos]);
 
-  const groupByCategory = (todosArray) => {
-    return todosArray.reduce((groups, todo) => {
-      const category = todo.category || "Uncategorized";
-      groups[category] = groups[category] || []; // Ensure category exists
-      groups[category].push(todo);
-      return groups;
-    }, {});
-  };
+  // If a new todo is passed down from ToDoPage, add it to the list
+  useEffect(() => {
+    if (newToDo) {
+      setTodos((prevTodos) => [...prevTodos, newToDo]);
+    }
+  }, [newToDo]);
 
   const filteredTodos = selectedCategory === "All"
-      ? todos
-      : todos && Array.isArray(todos) ? todos.filter((todo) => (todo.category || "Uncategorized").toLowerCase() === selectedCategory.toLowerCase()) : [];
-
+    ? todos
+    : todos.filter((todo) =>
+        (todo.category || "Uncategorized").toLowerCase() ===
+        selectedCategory.toLowerCase()
+      );
 
   const handleUpdate = (updatedToDo) => {
     setTodos((prevTodos) =>
@@ -45,6 +72,9 @@ const ToDoList = ({ todos, setTodos }) => {
   const handleCancel = () => {
     setEditingToDo(null);
   };
+
+  if (loading) return <p>Loading ToDos...</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
     <div>
@@ -65,13 +95,11 @@ const ToDoList = ({ todos, setTodos }) => {
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
             <option value="All">All</option>
-            {Object.keys(groupedTodos)
-              .sort()
-              .map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
+            {["A List", "B List", "C List", "Uncategorized"].map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
           </select>
 
           <button onClick={() => setSelectedCategory("All")}>
