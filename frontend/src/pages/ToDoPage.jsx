@@ -4,10 +4,11 @@ import ToDoForm from '../components/ToDoForm.jsx';
 import { useAuth } from '../services/AuthContext.jsx';
 import { Modal, Box, Button, Typography } from '@mui/material';
 
-const ToDoPage = () => {
-    const [showModal, setShowModal] = useState(false);
-    const [newToDo, setNewToDo] = useState(null);
-    const { user, loading: authLoading } = useAuth();
+const ToDoPage = () => { // defines a functional component ToDoPage
+    // Initializes states - showModal and newToDo
+    const [showModal, setShowModal] = useState(false); 
+    const [newToDo, setNewToDo] = useState(null); 
+    const { user, loading: authLoading } = useAuth(); // Destructures user and authLoading from the useAuth hook for authentication context.
 
     const handleCreateToDo = (createdToDo) => {
         setNewToDo(createdToDo);
@@ -28,6 +29,8 @@ const ToDoPage = () => {
                 Welcome, {user.username}! Here's your Dashboard
             </Typography>
 
+
+            {/* Button that opens the modal when clicked by setting showModal to true. */}
             <Button
                 variant="contained"
                 color="primary"
@@ -38,11 +41,15 @@ const ToDoPage = () => {
 
             {/* Modal for the ToDoForm */}
             <Modal
-                open={showModal}
+                // opens when showModal is true.  
+                open={showModal} 
+                // closes when onClose is triggered.
                 onClose={() => setShowModal(false)}
                 aria-labelledby="todo-form-modal-title"
                 aria-describedby="todo-form-modal-description"
             >
+                
+                {/*Styles the modal content box to appear centered on the screen. */}
                 <Box
                     sx={{
                         position: 'absolute',
@@ -65,7 +72,9 @@ const ToDoPage = () => {
                     >
                         Create a New ToDo
                     </Typography>
-                    <ToDoForm onSubmit={handleCreateToDo} />
+
+                    {/* Renders the ToDoForm component and passes the handleCreateToDo callback as a prop. */}
+                    <ToDoForm onSubmit={handleCreateToDo} />  
                     <Button
                         onClick={() => setShowModal(false)}
                         sx={{ mt: 2 }}
@@ -76,7 +85,8 @@ const ToDoPage = () => {
                     </Button>
                 </Box>
             </Modal>
-
+            
+            {/* Renders the ToDoList component and passes the newToDo state as a prop to append the newly created ToDo. */}
             <ToDoList newToDo={newToDo} />
         </div>
     );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import EditToDoForm from "./EditToDoForm.jsx";
-import { getToDos } from "../services/toDoService.js";
+import { getToDos, editToDo } from "../services/toDoService.js";
 import { useAuth } from "../services/AuthContext.jsx";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -75,13 +75,23 @@ const ToDoList = ({ newToDo }) => {
       );
 
 
-  const handleToggleCompleted = (updatedToDo) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo._id === updatedToDo._id ? updatedToDo : todo
-      )
-    );
-  };
+      const handleToggleCompleted = async (updatedToDo) => {
+        try {
+          // Use editToDo to update the backend
+          const updatedFromBackend = await editToDo(updatedToDo._id, updatedToDo);
+    
+          // Update the local state with the response from the backend
+          setTodos((prevTodos) =>
+            prevTodos.map((todo) =>
+              todo._id === updatedFromBackend._id ? updatedFromBackend : todo
+            )
+          );
+        } catch (error) {
+          console.error("Failed to update ToDo:", error);
+          alert("Could not update ToDo. Please try again.");
+        }
+      };
+    
 
   const handleCancel = () => {
     setEditingToDo(null);
