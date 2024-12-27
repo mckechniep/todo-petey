@@ -16,6 +16,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 
+
 const ToDoList = ({ newToDo }) => {
   const [todos, setTodos] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -62,21 +63,24 @@ const ToDoList = ({ newToDo }) => {
   }, [newToDo]);
 
   const filteredTodos =
-    selectedCategory === "All"
-      ? todos
-      : todos.filter(
-          (todo) =>
-            (todo.category || "Uncategorized").toLowerCase() ===
+  selectedCategory === "All"
+    ? todos.filter((todo) => !todo.completed) // Show only incomplete ToDos in "All"
+    : selectedCategory === "Completed"
+    ? todos.filter((todo) => todo.completed) // Show only completed ToDos in "Completed"
+    : todos.filter(
+        (todo) =>
+          !todo.completed && // Exclude completed ToDos from other categories
+          (todo.category || "Uncategorized").toLowerCase() ===
             selectedCategory.toLowerCase()
-        );
+      );
 
-  const handleUpdate = (updatedToDo) => {
+
+  const handleToggleCompleted = (updatedToDo) => {
     setTodos((prevTodos) =>
       prevTodos.map((todo) =>
         todo._id === updatedToDo._id ? updatedToDo : todo
       )
     );
-    setEditingToDo(null);
   };
 
   const handleCancel = () => {
@@ -95,7 +99,7 @@ const ToDoList = ({ newToDo }) => {
       {editingToDo ? (
         <EditToDoForm
           todo={editingToDo}
-          onUpdate={handleUpdate}
+          onUpdate={handleToggleCompleted}
           onCancel={handleCancel}
         />
       ) : (
@@ -108,6 +112,7 @@ const ToDoList = ({ newToDo }) => {
             sx={{ mb: 2, width: "200px" }}
           >
             <MenuItem value="All">All</MenuItem>
+            <MenuItem value="Completed">Completed</MenuItem>
             {["A List", "B List", "C List", "Uncategorized"].map((category) => (
               <MenuItem key={category} value={category}>
                 {category}
@@ -119,32 +124,57 @@ const ToDoList = ({ newToDo }) => {
           </Button>
 
           <List sx={{ width: "100%", maxWidth: 600, bgcolor: "background.paper" }}>
-            {filteredTodos.map((todo) => (
-              <ListItem key={todo._id} secondaryAction={
-                <IconButton
-                  edge="end"
-                  onClick={() => setEditingToDo(todo)}
-                  disabled={editingToDo && editingToDo._id !== todo._id}
-                >
-                  <EditIcon />
-                </IconButton>
-              }>
-                <ListItemAvatar>
-                  <Avatar>
-                    <AssignmentIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Link to={`/todos/${todo._id}`} style={{ textDecoration: "none" }}>
-                      {todo.title}
-                    </Link>
-                  }
-                  secondary={`Category: ${todo.category || "Uncategorized"}`}
+  {filteredTodos.map((todo) => (
+    <ListItem
+      key={todo._id}
+      secondaryAction={
+        <IconButton
+          edge="end"
+          onClick={() => setEditingToDo(todo)}
+          disabled={editingToDo && editingToDo._id !== todo._id}
+        >
+          <EditIcon />
+        </IconButton>
+      }
+    >
+      <ListItemAvatar>
+        <Avatar>
+          <AssignmentIcon />
+        </Avatar>
+      </ListItemAvatar>
+      <ListItemText
+        primary={
+          <div>
+            <Link
+              to={`/todos/${todo._id}`}
+              style={{ textDecoration: "none" }}
+            >
+              {todo.title}
+            </Link>
+            <Typography variant="body2" sx={{ display: "inline", ml: 2 }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={() => {
+                    const updatedToDo = {
+                      ...todo,
+                      completed: !todo.completed,
+                    };
+                    handleToggleCompleted(updatedToDo);
+                  }}
                 />
-              </ListItem>
-            ))}
-          </List>
+                Completed
+              </label>
+            </Typography>
+          </div>
+        }
+        secondary={`Category: ${todo.category || "Uncategorized"}`}
+      />
+    </ListItem>
+  ))}
+</List>
+
         </>
       )}
     </div>
@@ -157,23 +187,15 @@ export default ToDoList;
 
 
 
-
-// import React, { useState, useEffect } from "react";
-// import { Link } from "react-router-dom";
-// import EditToDoForm from "./EditToDoForm.jsx";
-// import { getToDos } from "../services/toDoService.js"; // Updated import to match new function name
-// import { useAuth } from "../services/AuthContext.jsx";
-
 // const ToDoList = ({ newToDo }) => {
 //   const [todos, setTodos] = useState([]);
 //   const [selectedCategory, setSelectedCategory] = useState("All");
 //   const [editingToDo, setEditingToDo] = useState(null);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState(null);
-  
+
 //   const { user, loading: authLoading } = useAuth();
 
-//   // Load todos from local storage on initial render
 //   useEffect(() => {
 //     const storedTodos = localStorage.getItem("todos");
 //     if (storedTodos) {
@@ -182,14 +204,13 @@ export default ToDoList;
 //     }
 //   }, []);
 
-//   // Fetch todos when user is authenticated
 //   useEffect(() => {
 //     const fetchTodos = async () => {
 //       if (!authLoading && user) {
 //         try {
-//           const data = await getToDos(); // Call the updated getToDos function
+//           const data = await getToDos();
 //           setTodos(data);
-//           localStorage.setItem('todos', JSON.stringify(data));
+//           localStorage.setItem("todos", JSON.stringify(data));
 //           setLoading(false);
 //         } catch (err) {
 //           console.error("Error fetching todos:", err);
@@ -201,24 +222,24 @@ export default ToDoList;
 //     fetchTodos();
 //   }, [authLoading, user]);
 
-//   // Whenever todos change, update local storage
 //   useEffect(() => {
-//     localStorage.setItem('todos', JSON.stringify(todos));
+//     localStorage.setItem("todos", JSON.stringify(todos));
 //   }, [todos]);
 
-//   // If a new todo is passed down from ToDoPage, add it to the list
 //   useEffect(() => {
 //     if (newToDo) {
 //       setTodos((prevTodos) => [...prevTodos, newToDo]);
 //     }
 //   }, [newToDo]);
 
-//   const filteredTodos = selectedCategory === "All"
-//     ? todos
-//     : todos.filter((todo) =>
-//         (todo.category || "Uncategorized").toLowerCase() ===
-//         selectedCategory.toLowerCase()
-//       );
+//   const filteredTodos =
+//     selectedCategory === "All"
+//       ? todos
+//       : todos.filter(
+//           (todo) =>
+//             (todo.category || "Uncategorized").toLowerCase() ===
+//             selectedCategory.toLowerCase()
+//         );
 
 //   const handleUpdate = (updatedToDo) => {
 //     setTodos((prevTodos) =>
@@ -234,11 +255,13 @@ export default ToDoList;
 //   };
 
 //   if (loading) return <p>Loading ToDos...</p>;
-//   if (error) return <p style={{ color: 'red' }}>{error}</p>;
+//   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
 //   return (
 //     <div>
-//       <h1>ToDo List</h1>
+//       <Typography variant="h4" gutterBottom>
+//         ToDo List
+//       </Typography>
 
 //       {editingToDo ? (
 //         <EditToDoForm
@@ -248,37 +271,80 @@ export default ToDoList;
 //         />
 //       ) : (
 //         <>
-//           <label htmlFor="categoryFilter">Filter by Category:</label>
-//           <select
-//             id="categoryFilter"
+//           <Typography variant="subtitle1">Filter by Category:</Typography>
+//           <Select
 //             value={selectedCategory}
 //             onChange={(e) => setSelectedCategory(e.target.value)}
+//             displayEmpty
+//             sx={{ mb: 2, width: "200px" }}
 //           >
-//             <option value="All">All</option>
+//             <MenuItem value="All">All</MenuItem>
 //             {["A List", "B List", "C List", "Uncategorized"].map((category) => (
-//               <option key={category} value={category}>
+//               <MenuItem key={category} value={category}>
 //                 {category}
-//               </option>
+//               </MenuItem>
 //             ))}
-//           </select>
-
-//           <button onClick={() => setSelectedCategory("All")}>
+//           </Select>
+//           <Button onClick={() => setSelectedCategory("All")} sx={{ mb: 2 }}>
 //             Clear Filter
-//           </button>
+//           </Button>
 
-//           <ul>
+//           <List
+//             sx={{ width: "100%", maxWidth: 600, bgcolor: "background.paper" }}
+//           >
 //             {filteredTodos.map((todo) => (
-//               <li key={todo._id}>
-//                 <Link to={`/todos/${todo._id}`}>{todo.title}</Link>
-//                 <button
-//                   onClick={() => setEditingToDo(todo)}
-//                   disabled={editingToDo && editingToDo._id !== todo._id}
-//                 >
-//                   Edit
-//                 </button>
-//               </li>
+//               <ListItem
+//                 key={todo._id}
+//                 secondaryAction={
+//                   <IconButton
+//                     edge="end"
+//                     onClick={() => setEditingToDo(todo)}
+//                     disabled={editingToDo && editingToDo._id !== todo._id}
+//                   >
+//                     <EditIcon />
+//                   </IconButton>
+//                 }
+//               >
+//                 <ListItemAvatar>
+//                   <Avatar>
+//                     <AssignmentIcon />
+//                   </Avatar>
+//                 </ListItemAvatar>
+//                 <ListItemText
+//                   primary={
+//                     <div>
+//                       <Link
+//                         to={`/todos/${todo._id}`}
+//                         style={{ textDecoration: "none" }}
+//                       >
+//                         {todo.title}
+//                       </Link>
+//                       <Typography
+//                         variant="body2"
+//                         sx={{ display: "inline", ml: 2 }}
+//                       >
+//                         <label>
+//                           <input
+//                             type="checkbox"
+//                             checked={todo.completed}
+//                             onChange={() => {
+//                               const updatedToDo = {
+//                                 ...todo,
+//                                 completed: !todo.completed,
+//                               };
+//                               handleUpdate(updatedToDo); // Update state with the toggled completion
+//                             }}
+//                           />
+//                           Completed
+//                         </label>
+//                       </Typography>
+//                     </div>
+//                   }
+//                   secondary={`Category: ${todo.category || "Uncategorized"}`}
+//                 />
+//               </ListItem>
 //             ))}
-//           </ul>
+//           </List>
 //         </>
 //       )}
 //     </div>

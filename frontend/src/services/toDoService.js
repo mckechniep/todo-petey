@@ -39,8 +39,9 @@ export const createToDo = async (todoData) => {
   }
 };
 
-//takes 2 arguments, id of the todo item to update, and updatedToDo - an object containing the updated to-do data
-export const editToDo = async (id, updatedToDo) => {
+
+// purpose is to send a request to the server to update to-do item with the new updatedToDo info provided
+export const editToDo = async (id, updatedToDo) => { // takes 2 arguments, id of the todo item to update, and updatedToDo - an object containing the updated to-do data
     const token = localStorage.getItem("token");
     try {
         // api.put method sends request to endpoint with updatedToDo as the request
@@ -54,4 +55,3 @@ export const editToDo = async (id, updatedToDo) => {
     }
 };
 
-// export default getToDos;

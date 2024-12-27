@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import { createToDo } from '../services/toDoService.js';
-import { useAuth } from '../services/AuthContext.jsx'
+import { useAuth } from '../services/AuthContext.jsx';
+import { TextField, Button, MenuItem, Typography, Box } from '@mui/material';
 
 
-// ToDoForm is a functional component
-// onSubmit is a prop passed from the parent component
-    /* parent component that passes the onSubmit prop to the ToDoForm component would typically be 
-            the main page or container that manages the list of ToDos. This parent component should 
-            handle updating the state for the ToDos after a new one is created. */
 const ToDoForm = ({ onSubmit }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -15,7 +11,6 @@ const ToDoForm = ({ onSubmit }) => {
     const [completed, setCompleted] = useState(false);
     const { user, loading } = useAuth();
     const [error, setError] = useState(null);
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,11 +23,10 @@ const ToDoForm = ({ onSubmit }) => {
                 completed,
                 user: user._id,
             };
-            console.log("Sending ToDo to API:", newToDo);   
-            // call the API to create the ToDo
+            console.log("Sending ToDo to API:", newToDo);
             const createdToDo = await createToDo(newToDo);
             console.log("Received Created ToDo from API:", createdToDo);
-            onSubmit(createdToDo); 
+            onSubmit(createdToDo);
 
             setTitle('');
             setDescription('');
@@ -45,64 +39,85 @@ const ToDoForm = ({ onSubmit }) => {
     };
 
     if (loading) {
-        return <div>Loading user data...</div>; // Or a spinner
+        return <Typography>Loading user data...</Typography>;
     }
 
     if (!user) {
-        return <div>Please log in to create ToDos.</div>;
+        return <Typography>Please log in to create ToDos.</Typography>;
     }
-    
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Create New ToDo</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+            <Typography variant="h6" gutterBottom>
+                Create New ToDo
+            </Typography>
+            {error && (
+                <Typography color="error" gutterBottom>
+                    {error}
+                </Typography>
+            )}
 
-            <div>
-                <label htmlFor="title">Title:</label>
-                <input
-                    type="text"
-                    id="title"
+            <Box sx={{ mb: 2 }}>
+                <TextField
+                    fullWidth
+                    required
+                    label="Title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    required
                 />
-            </div>
+            </Box>
 
-            <div>
-                <label htmlFor="description">Description:</label>
-                <textarea
-                    id="description"
+            <Box sx={{ mb: 2 }}>
+                <TextField
+                    fullWidth
+                    multiline
+                    rows={4}
+                    label="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
-            </div>
+            </Box>
 
-            <div>
-                <label htmlFor="category">Category:</label>
-                <select
-                    id="category"
+            <Box sx={{ mb: 2 }}>
+                <TextField
+                    select
+                    fullWidth
+                    label="Category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                 >
-                    <option value="A List">A List</option>
-                    <option value="B List">B List</option>
-                    <option value="C List">C List</option>
-                </select>
-            </div>
+                    {['A List', 'B List', 'C List'].map((option) => (
+                        <MenuItem key={option} value={option}>
+                            {option}
+                        </MenuItem>
+                    ))}
+                </TextField>
+            </Box>
 
-            <div>
-                <label htmlFor="completed">Completed:</label>
-                <input
-                    type="checkbox"
-                    id="completed"
-                    checked={completed}
-                    onChange={(e) => setCompleted(e.target.checked)}
-                />
-            </div>
+            <Box sx={{ mb: 2 }}>
+                <Typography>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={completed}
+                            onChange={(e) => setCompleted(e.target.checked)}
+                        />
+                        Mark as Completed
+                    </label>
+                </Typography>
+            </Box>
 
-            <button type="submit">Create ToDo</button>
-        </form>
+            <Box>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                >
+                    Create ToDo
+                </Button>
+            </Box>
+        </Box>
     );
 };
 

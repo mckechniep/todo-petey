@@ -33,7 +33,7 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
 
         try {
             //construct updated ToDo payload, new object with updated values
-            const updatedToDo ={
+            const updatedToDo = {
                 ...todo, // retain original ToDo ID (and created date i think?)
                 title,
                 description,
