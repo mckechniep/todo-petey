@@ -48,9 +48,9 @@ const ToDoForm = ({ onSubmit }) => {
 
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            <Typography variant="h6" gutterBottom>
+            {/* <Typography variant="h6" gutterBottom>
                 Create New ToDo
-            </Typography>
+            </Typography> */}
             {error && (
                 <Typography color="error" gutterBottom>
                     {error}

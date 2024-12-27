@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getToDoById } from "../services/toDoService.js";
 import EditToDoForm from "./EditToDoForm.jsx";
+import { Box, Typography, Button, Card, CardContent, CircularProgress } from "@mui/material";
 
 const ToDoDetails = () => {
   const { id } = useParams();
@@ -32,19 +33,47 @@ const ToDoDetails = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (error) {
-    return <div style={{ color: "red" }}>{error}</div>;
+    return (
+      <Box sx={{ textAlign: "center", color: "error.main", mt: 4 }}>
+        <Typography variant="h6">{error}</Typography>
+      </Box>
+    );
   }
 
   if (!todo) {
-    return <div>ToDo not found.</div>;
+    return (
+      <Box sx={{ textAlign: "center", mt: 4 }}>
+        <Typography variant="h6">ToDo not found.</Typography>
+      </Box>
+    );
   }
 
   return (
-    <div>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        height: "100vh",
+        px: 2,
+        mt: 5
+      }}
+    >
       {isEditing ? (
         <EditToDoForm
           todo={todo}
@@ -52,16 +81,43 @@ const ToDoDetails = () => {
           onCancel={() => setIsEditing(false)} // Exit edit mode without saving
         />
       ) : (
-        <>
-          <h2>{todo.title}</h2>
-          <p>Description: {todo.description}</p>
-          <p>Category: {todo.category}</p>
-          <p>Completed: {todo.completed ? "Yes" : "No"}</p>
-          <p>Date Created: {todo.createdAt}</p>
-          <button onClick={() => setIsEditing(true)}>Edit ToDo</button>
-        </>
+        <Card sx={{ maxWidth: 500, width: "100%", boxShadow: 3 }}>
+          <CardContent>
+            <Typography variant="h4" gutterBottom>
+              {todo.title}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              <strong>Description:</strong> {todo.description}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              <strong>Category:</strong> {todo.category}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              <strong>Completed:</strong> {todo.completed ? "Yes" : "No"}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              <strong>Date Created:</strong>{" "}
+              {new Date(todo.createdAt).toLocaleString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Typography>
+            <Box sx={{ textAlign: "center", mt: 4 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setIsEditing(true)}
+              >
+                Edit ToDo
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
       )}
-    </div>
+    </Box>
   );
 };
 

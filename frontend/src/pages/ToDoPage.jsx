@@ -26,7 +26,7 @@ const ToDoPage = () => { // defines a functional component ToDoPage
     return (
         <div>
             <Typography variant="h4" gutterBottom>
-                Welcome, {user.username}! Here's your Dashboard
+                Welcome, {user.username}!
             </Typography>
 
 
