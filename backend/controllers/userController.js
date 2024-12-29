@@ -8,7 +8,7 @@ dotenv.config();
 // Sign-up route controller logic
 export const signup = async (req, res) => {
     try {
-        //destrucutre certain fields from request body, for validation or other operations
+        //destructure certain fields from request body, for validation or other operations
         const { 
                 username, 
                 password, 

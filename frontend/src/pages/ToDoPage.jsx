@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import ToDoList from '../components/ToDoList.jsx';
 import ToDoForm from '../components/ToDoForm.jsx';
+import MyCalendar from '../components/MyCalendar.jsx';
 import { useAuth } from '../services/AuthContext.jsx';
 import { Modal, Box, Button, Typography } from '@mui/material';
 
-const ToDoPage = () => { // defines a functional component ToDoPage
-    // Initializes states - showModal and newToDo
-    const [showModal, setShowModal] = useState(false); 
-    const [newToDo, setNewToDo] = useState(null); 
-    const { user, loading: authLoading } = useAuth(); // Destructures user and authLoading from the useAuth hook for authentication context.
+const ToDoPage = () => {
+    const [showModal, setShowModal] = useState(false);
+    const [newToDo, setNewToDo] = useState(null);
+    const { user, loading: authLoading } = useAuth();
 
     const handleCreateToDo = (createdToDo) => {
         setNewToDo(createdToDo);
-        setShowModal(false); // Close the modal after submission
+        setShowModal(false);
     };
 
     if (authLoading) {
@@ -24,32 +24,72 @@ const ToDoPage = () => { // defines a functional component ToDoPage
     }
 
     return (
-        <div>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}>
             <Typography variant="h4" gutterBottom>
                 Welcome, {user.username}!
             </Typography>
 
-
-            {/* Button that opens the modal when clicked by setting showModal to true. */}
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => setShowModal(true)}
+            {/* Main container for side-by-side layout */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    gap: 3,
+                    justifyContent: 'space-between',
+                }}
             >
-                Add ToDo
-            </Button>
+                {/* ToDo List Section */}
+                <Box
+                    sx={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        border: '1px solid #ddd',
+                        borderRadius: 2,
+                        p: 2,
+                        minHeight: 400,
+                    }}
+                >
+                    <Box sx={{ flexGrow: 1 }}>
+                        <ToDoList newToDo={newToDo} />
+                    </Box>
 
-            {/* Modal for the ToDoForm */}
+                    {/* Add ToDo Button */}
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setShowModal(true)}
+                        sx={{ mt: 2, alignSelf: 'center' }}
+                    >
+                        Add ToDo
+                    </Button>
+                </Box>
+
+                {/* Calendar Section */}
+                <Box
+                    sx={{
+                        flex: 2,
+                        border: '1px solid #ddd',
+                        borderRadius: 2,
+                        p: 2,
+                        minHeight: 400,
+                    }}
+                >
+                    <Typography variant="h6" gutterBottom>
+                        Your Calendar
+                    </Typography>
+                    <MyCalendar />
+                </Box>
+            </Box>
+
+            {/* Modal for ToDoForm */}
             <Modal
-                // opens when showModal is true.  
-                open={showModal} 
-                // closes when onClose is triggered.
+                open={showModal}
                 onClose={() => setShowModal(false)}
                 aria-labelledby="todo-form-modal-title"
                 aria-describedby="todo-form-modal-description"
             >
-                
-                {/*Styles the modal content box to appear centered on the screen. */}
                 <Box
                     sx={{
                         position: 'absolute',
@@ -72,9 +112,7 @@ const ToDoPage = () => { // defines a functional component ToDoPage
                     >
                         Create a New ToDo
                     </Typography>
-
-                    {/* Renders the ToDoForm component and passes the handleCreateToDo callback as a prop. */}
-                    <ToDoForm onSubmit={handleCreateToDo} />  
+                    <ToDoForm onSubmit={handleCreateToDo} />
                     <Button
                         onClick={() => setShowModal(false)}
                         sx={{ mt: 2 }}
@@ -85,10 +123,7 @@ const ToDoPage = () => { // defines a functional component ToDoPage
                     </Button>
                 </Box>
             </Modal>
-            
-            {/* Renders the ToDoList component and passes the newToDo state as a prop to append the newly created ToDo. */}
-            <ToDoList newToDo={newToDo} />
-        </div>
+        </Box>
     );
 };
 

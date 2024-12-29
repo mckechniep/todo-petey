@@ -5,6 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import usersRouter from "./routes/userRoutes.js";
 import toDoRouter from "./routes/toDoRoutes.js";
+import calendarRouter from "./routes/calendarRoutes.js";
 
 
 // Load environment variables 
@@ -21,6 +22,7 @@ app.use(logger("dev"));
 
 app.use('/api/users', usersRouter)
 app.use('/api/todos', toDoRouter);
+app.use('/api/calendar', calendarRouter);
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
