@@ -15,3 +15,19 @@ export const getCalendarEvents = async () => {
     });
     return res.data;
 };
+
+export const updateCalendarEvent = async (id, eventData) => {
+    const token = localStorage.getItem("token");
+    const res = await api.put(`/calendar/events/${id}`, eventData, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+};
+
+export const deleteCalendarEvent = async (id) => {
+    const token = localStorage.getItem("token");
+    const res = await api.delete(`/calendar/events/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+}

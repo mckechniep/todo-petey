@@ -31,3 +31,44 @@ export const getCalendarEvents = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const deleteCalendarEvent = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const eventId = req.params.id;
+
+        const deletedEvent = await CalendarEvent.findByIdAndDelete({ 
+            _id: eventId,
+            userId: userId
+        });
+
+        if (!deletedEvent)
+            return res.status(404).json({ message: "Event not found" });
+
+        res.status(200).json({ message: "Event deleted" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const editCalendarEvent = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const eventId = req.params.id;
+        const updates = req.body;
+
+        const updatedEvent = await CalendarEvent.findOneAndUpdate(
+            { _id: eventId, userId: userId },
+            updates,
+            { new: true }
+        );
+
+        if (!updatedEvent) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+
+        res.status(200).json(updatedEvent);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
