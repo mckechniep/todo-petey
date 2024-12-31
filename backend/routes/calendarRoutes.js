@@ -7,6 +7,6 @@ const router = Router();
 router.get('/events', verifyToken, getCalendarEvents);
 router.post('/events', verifyToken, newCalendarEvent);
 router.delete('/events/:id', verifyToken, deleteCalendarEvent);
-router.put('events/:id', verifyToken, editCalendarEvent);
+router.put('/events/:id', verifyToken, editCalendarEvent);
 
 export default router;

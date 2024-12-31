@@ -195,20 +195,22 @@ const DraggableToDo = ({ todo, setEditingToDo, handleToggleCompleted }) => {
         </Avatar>
       </ListItemAvatar>
       <ListItemText
-        primary={<Link to={`/todos/${todo._id}`}>{todo.title}</Link>}
-        secondary={
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() =>
-                handleToggleCompleted({ ...todo, completed: !todo.completed })
-              }
-            />
-            <span>Completed</span>
-          </Box>
-        }
-      />
+  primary={<Link to={`/todos/${todo._id}`}>{todo.title}</Link>}
+  secondary={
+    <Typography component="div">
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={() =>
+            handleToggleCompleted({ ...todo, completed: !todo.completed })
+          }
+        />
+        <span>Completed</span>
+      </Box>
+    </Typography>
+  }
+/>
     </ListItem>
   );
 };

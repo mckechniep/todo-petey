@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { saveCalendarEvent, getCalendarEvents, deleteCalendarEvent } from '../services/calendarService.js';
+import { saveCalendarEvent, getCalendarEvents, deleteCalendarEvent, updateCalendarEvent } from '../services/calendarService.js';
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { useDrop } from "react-dnd";
 import { format, parse, startOfWeek, getDay } from "date-fns";
@@ -72,28 +72,41 @@ const MyCalendar = ({ onEventUpdate }) => {
 
     const handleModalSave = async (eventDetails) => {
         try {
-            const savedEvent = await saveCalendarEvent(eventDetails);
+            let savedEvent;
+            if (editingEvent?._id) {
+                // For existing events, use updateCalendarEvent
+                savedEvent = await updateCalendarEvent(editingEvent._id, {
+                    title: eventDetails.title,
+                    start: eventDetails.start,
+                    end: eventDetails.end,
+                    todoId: eventDetails.todoId,
+                    description: eventDetails.description
+                });
+            } else {
+                // For new events, use saveCalendarEvent
+                savedEvent = await saveCalendarEvent(eventDetails);
+            }
+    
             const formattedEvent = {
                 ...savedEvent,
                 start: new Date(savedEvent.start),
                 end: new Date(savedEvent.end)
             };
-             // If editing an existing event, update it instead of adding new one
-        if (eventDetails._id) {
-            setEvents(currentEvents => 
-                currentEvents.map(event => 
-                    event._id === eventDetails._id ? formattedEvent : event
-                )
-            );
-        } else {
-            // Add new event
-            setEvents(currentEvents => [...currentEvents, formattedEvent]);
+    
+            setEvents(currentEvents => {
+                const otherEvents = currentEvents.filter(event => event._id !== savedEvent._id);
+                return [...otherEvents, formattedEvent];
+            });
+            
+            setEditingEvent(null);
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error('Error saving event:', error);
         }
-    } catch (error) {
-        console.error('Error saving event:', error);
-    }
-};
-
+    };
+    
+    
+    
     const handleEventClick = (event) => {
         setEditingEvent(event);
         setIsModalOpen(true);
