@@ -134,7 +134,12 @@ const MyCalendar = ({ onEventUpdate }) => {
             ref={dropRef}
             style={{
                 height: 500,
-                border: isOver ? "2px dashed blue" : "none",
+                border: isOver ? "2px solid blue" : "none",
+                boxShadow: "0 8px 14px rgba(0, 0, 0, 0.15)",
+                padding: "20px",
+                backgroundColor: "white",
+                borderRadius: "8px",
+                position: "relative",
             }}
         >
             <Typography
@@ -185,7 +190,11 @@ const MyCalendar = ({ onEventUpdate }) => {
                         );
                     }
                 }}
-                style={{ height: "100%" }}
+                style={{ 
+                    height: "calc(100% - 80px)",  // Subtracting space for the title
+                    position: "relative",
+                    zIndex: 1
+                }}
             />
             <CalendarModal
                 open={isModalOpen}

@@ -69,9 +69,9 @@ const ToDoPage = () => {
                 <Box
                     sx={{
                         flex: 2,
-                        border: '1px solid #ddd',
-                        borderRadius: 2,
-                        p: 2,
+                        // border: '1px solid #ddd',
+                        // borderRadius: 2,
+                        // p: 2,
                         minHeight: 400,
                     }}
                 >

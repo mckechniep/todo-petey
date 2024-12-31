@@ -95,23 +95,22 @@ const ToDoList = ({ newToDo }) => {
 
   return (
     <div>
-<Typography 
-  variant="h4" 
-  gutterBottom
-  sx={{
-    fontWeight: 700,
-    color: '#1976d2',
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: '0.1em',
-    borderBottom: '3px solid #1976d2',
-    paddingBottom: '8px',
-    marginBottom: '20px'
-  }}
->
-  ToDo Lists
-</Typography>
-
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{
+          fontWeight: 700,
+          color: "#1976d2",
+          textAlign: "center",
+          textTransform: "uppercase",
+          letterSpacing: "0.1em",
+          borderBottom: "3px solid #1976d2",
+          paddingBottom: "8px",
+          marginBottom: "20px",
+        }}
+      >
+        ToDo Lists
+      </Typography>
 
       {editingToDo ? (
         <EditToDoForm
@@ -195,22 +194,22 @@ const DraggableToDo = ({ todo, setEditingToDo, handleToggleCompleted }) => {
         </Avatar>
       </ListItemAvatar>
       <ListItemText
-  primary={<Link to={`/todos/${todo._id}`}>{todo.title}</Link>}
-  secondary={
-    <Typography component="div">
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          onChange={() =>
-            handleToggleCompleted({ ...todo, completed: !todo.completed })
-          }
-        />
-        <span>Completed</span>
-      </Box>
-    </Typography>
-  }
-/>
+        primary={<Link to={`/todos/${todo._id}`}>{todo.title}</Link>}
+        secondary={
+          <Typography component="div">
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() =>
+                  handleToggleCompleted({ ...todo, completed: !todo.completed })
+                }
+              />
+              <span>Completed</span>
+            </Box>
+          </Typography>
+        }
+      />
     </ListItem>
   );
 };
