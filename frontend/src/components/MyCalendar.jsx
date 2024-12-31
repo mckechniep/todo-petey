@@ -6,6 +6,7 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import CalendarModal from './CalendarModal';
+import { Typography } from "@mui/material";
 
 const locales = { "en-US": enUS };
 const localizer = dateFnsLocalizer({
@@ -77,11 +78,21 @@ const MyCalendar = ({ onEventUpdate }) => {
                 start: new Date(savedEvent.start),
                 end: new Date(savedEvent.end)
             };
+             // If editing an existing event, update it instead of adding new one
+        if (eventDetails._id) {
+            setEvents(currentEvents => 
+                currentEvents.map(event => 
+                    event._id === eventDetails._id ? formattedEvent : event
+                )
+            );
+        } else {
+            // Add new event
             setEvents(currentEvents => [...currentEvents, formattedEvent]);
-        } catch (error) {
-            console.error('Error saving event:', error);
         }
-    };
+    } catch (error) {
+        console.error('Error saving event:', error);
+    }
+};
 
     const handleEventClick = (event) => {
         setEditingEvent(event);
@@ -113,6 +124,22 @@ const MyCalendar = ({ onEventUpdate }) => {
                 border: isOver ? "2px dashed blue" : "none",
             }}
         >
+            <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+                fontWeight: 700,
+                color: '#1976d2',
+                textAlign: 'center',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                borderBottom: '3px solid #1976d2',
+                paddingBottom: '8px',
+                marginBottom: '20px'
+            }}
+        >
+            My Calendar
+        </Typography>
             <Calendar
                 key={events.length}
                 localizer={localizer}

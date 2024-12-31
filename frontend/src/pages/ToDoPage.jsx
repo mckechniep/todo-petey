@@ -28,7 +28,7 @@ const ToDoPage = () => {
             <Typography variant="h4" gutterBottom>
                 Welcome, {user.username}!
             </Typography>
-
+    
             {/* Main container for side-by-side layout */}
             <Box
                 sx={{
@@ -44,7 +44,6 @@ const ToDoPage = () => {
                         flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'space-between',
                         border: '1px solid #ddd',
                         borderRadius: 2,
                         p: 2,
@@ -54,8 +53,8 @@ const ToDoPage = () => {
                     <Box sx={{ flexGrow: 1 }}>
                         <ToDoList newToDo={newToDo} />
                     </Box>
-
-                    {/* Add ToDo Button */}
+                    
+                    {/* Add ToDo Button at bottom */}
                     <Button
                         variant="contained"
                         color="primary"
@@ -65,7 +64,7 @@ const ToDoPage = () => {
                         Add ToDo
                     </Button>
                 </Box>
-
+    
                 {/* Calendar Section */}
                 <Box
                     sx={{
@@ -76,13 +75,13 @@ const ToDoPage = () => {
                         minHeight: 400,
                     }}
                 >
-                    <Typography variant="h6" gutterBottom>
+                    {/* <Typography variant="h6" gutterBottom>
                         Your Calendar
-                    </Typography>
+                    </Typography> */}
                     <MyCalendar />
                 </Box>
             </Box>
-
+    
             {/* Modal for ToDoForm */}
             <Modal
                 open={showModal}
@@ -125,6 +124,7 @@ const ToDoPage = () => {
             </Modal>
         </Box>
     );
+     
 };
 
 export default ToDoPage;

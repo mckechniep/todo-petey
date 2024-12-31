@@ -54,7 +54,7 @@ const ToDoList = ({ newToDo }) => {
   const filteredTodos = todos.filter((todo) => {
     if (selectedCategory === "All") return !todo.completed;
     if (selectedCategory === "Completed") return todo.completed;
-    return todo.category === selectedCategory;
+    return todo.category === selectedCategory && !todo.completed;
   });
 
   const handleToggleCompleted = async (updatedToDo) => {
@@ -95,9 +95,23 @@ const ToDoList = ({ newToDo }) => {
 
   return (
     <div>
-      <Typography variant="h4" gutterBottom>
-        Dashboard
-      </Typography>
+<Typography 
+  variant="h4" 
+  gutterBottom
+  sx={{
+    fontWeight: 700,
+    color: '#1976d2',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    borderBottom: '3px solid #1976d2',
+    paddingBottom: '8px',
+    marginBottom: '20px'
+  }}
+>
+  ToDo Lists
+</Typography>
+
 
       {editingToDo ? (
         <EditToDoForm
@@ -107,7 +121,7 @@ const ToDoList = ({ newToDo }) => {
         />
       ) : (
         <>
-          <Typography variant="subtitle1">Filter by Category:</Typography>
+          {/* <Typography variant="subtitle1">Filter by Category:</Typography> */}
           <Select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -115,12 +129,12 @@ const ToDoList = ({ newToDo }) => {
             sx={{ mb: 2, width: "200px" }}
           >
             <MenuItem value="All">All</MenuItem>
-            <MenuItem value="Completed">Completed</MenuItem>
             {["A List", "B List", "C List"].map((category) => (
               <MenuItem key={category} value={category}>
                 {category}
               </MenuItem>
             ))}
+            <MenuItem value="Completed">Completed</MenuItem>
           </Select>
           <Button onClick={() => setSelectedCategory("All")} sx={{ mb: 2 }}>
             Clear Filter
