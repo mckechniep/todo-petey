@@ -94,26 +94,33 @@ const CalendarModal = ({
 
   const handleDelete = async () => {
     if (editingEvent && editingEvent._id) {
-      try {
-        await deleteCalendarEvent(editingEvent._id);
-    
-        // Fetch fresh events after deletion
-        const updatedEvents = await getCalendarEvents();
-        const formattedEvents = updatedEvents.map(event => ({
-            ...event,
-            start: new Date(event.start),
-            end: new Date(event.end),
-            occurrenceDate: event.occurrenceDate ? new Date(event.occurrenceDate) : null
-        }));
+        if (editingEvent.isRecurring) {
+            const deleteAll = window.confirm(
+                "Do you want to delete all occurrences of this recurring event?"
+            );
+            // If user cancels, return early
+            if (!deleteAll) {
+                return;
+            }
+        }
         
-        // Pass the full updated events list to parent
-        onEventSaved(formattedEvents);
-        onClose();
-      } catch (error) {
-        console.error("Error deleting event:", error);
-      }
+        try {
+            await deleteCalendarEvent(editingEvent._id);
+            const updatedEvents = await getCalendarEvents();
+            const formattedEvents = updatedEvents.map(event => ({
+                ...event,
+                start: new Date(event.start),
+                end: new Date(event.end),
+                occurrenceDate: event.occurrenceDate ? new Date(event.occurrenceDate) : null
+            }));
+            onEventSaved(formattedEvents);
+            onClose();
+        } catch (error) {
+            console.error("Error deleting event:", error);
+        }
     }
 };
+
 
 
   return (

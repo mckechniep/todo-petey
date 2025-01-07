@@ -55,7 +55,7 @@ export const newCalendarEvent = async (req, res) => {
       const savedEvents = await CalendarEvent.insertMany(eventsToSave);
 
       console.log('Saved events:', savedEvents); // Add this log
-      
+
       res.status(201).json(savedEvents);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -79,29 +79,34 @@ export const deleteCalendarEvent = async (req, res) => {
         const userId = req.user._id;
         const eventId = req.params.id;
 
-         // First find the event to get its details
+        // First find the event to get its groupId
         const event = await CalendarEvent.findOne({ _id: eventId });
 
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
 
-        // Delete the specific instance
-        const deletedEvent = await CalendarEvent.findOneAndDelete({
-            _id: eventId,
-            userId: userId
-        });
-
-        if (!deletedEvent) {
-            return res.status(404).json({ message: "Failed to delete event" });
+        let deletedEvents;
+        if (event.groupId && event.isRecurring) {
+            // Delete all events in the group
+            deletedEvents = await CalendarEvent.deleteMany({
+                groupId: event.groupId,
+                userId: userId
+            });
+        } else {
+            // Delete single event
+            deletedEvents = await CalendarEvent.findOneAndDelete({
+                _id: eventId,
+                userId: userId
+            });
         }
 
         res.status(200).json({
-            message: "Event deleted successfully",
-            deletedEvent
+            message: "Events deleted successfully",
+            deletedEvents
         });
     } catch (error) {
-        console.error('Delete error:', error); // Add this log
+        console.error('Delete error:', error);
         res.status(500).json({ error: error.message });
     }
 };
