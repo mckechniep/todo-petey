@@ -2,24 +2,45 @@ import CalendarEvent from "../models/calendarEvents.js";
 
 export const newCalendarEvent = async (req, res) => {
     try {
-        const { title, start, end, todoId, description } = req.body;
-        const userId = req.user._id; // from verifyToken middleware
-
-        const event = new CalendarEvent({
-            title,
-            start,
-            end,
-            todoId,
-            description,
-            userId
+      const { title, start, end, todoId, description, recurrence, recurrenceEndDate } = req.body;
+      const userId = req.user._id; // Retrieved from verifyToken middleware
+  
+      const eventsToSave = [];
+      let currentDate = new Date(start);
+      const recurrenceEnd = recurrenceEndDate ? new Date(recurrenceEndDate) : new Date(start);
+  
+      while (currentDate <= recurrenceEnd) {
+        eventsToSave.push({
+          title,
+          start: new Date(currentDate),
+          end: new Date(currentDate.getTime() + (new Date(end).getTime() - new Date(start).getTime())),
+          todoId,
+          description,
+          userId,
+          recurrence,
+          recurrenceEndDate,
         });
-
-        const savedEvent = await event.save();
-        res.status(201).json(savedEvent);
+  
+        // Advance the date based on recurrence type
+        if (recurrence === "daily") {
+          currentDate.setDate(currentDate.getDate() + 1);
+        } else if (recurrence === "weekly") {
+          currentDate.setDate(currentDate.getDate() + 7);
+        } else if (recurrence === "monthly") {
+          currentDate.setMonth(currentDate.getMonth() + 1);
+        } else {
+          break; // If recurrence is "none" or invalid
+        }
+      }
+  
+      // Save all events in a batch
+      const savedEvents = await CalendarEvent.insertMany(eventsToSave);
+      res.status(201).json(savedEvents);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
-};
+  };
+  
 
 export const getCalendarEvents = async (req, res) => {
     try {
@@ -37,7 +58,7 @@ export const deleteCalendarEvent = async (req, res) => {
         const userId = req.user._id;
         const eventId = req.params.id;
 
-        const deletedEvent = await CalendarEvent.findByIdAndDelete({ 
+        const deletedEvent = await CalendarEvent.findOneAndDelete({ 
             _id: eventId,
             userId: userId
         });
