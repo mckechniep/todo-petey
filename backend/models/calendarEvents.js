@@ -13,7 +13,19 @@ const CalendarEventSchema = new mongoose.Schema({
     default: "none",
   },
   recurrenceEndDate: { type: Date }, // End date for recurring events
+  groupId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: null,
+  },
+  isRecurring: {
+    type: Boolean,
+    default: false,
+  },
+  occurrenceDate: {
+    type: Date,
+    required: false,
+  },
 });
 
-const CalendarEvent = mongoose.model("CalendarEvent", CalendarEventSchema);
+const CalendarEvent = mongoose.model("CalendarEvent", CalendarEventSchema); //The string "CalendarEvent" inside mongoose.model() is the actual collection name that will be used in MongoDB
 export default CalendarEvent;

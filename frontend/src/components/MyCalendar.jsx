@@ -74,23 +74,21 @@ const MyCalendar = ({ onEventUpdate }) => {
   };
 
 
-  const handleModalSave = (savedEvents) => {
-    const formattedEvents = savedEvents.map(event => ({
+  const handleModalSave = (updatedEvents) => {
+    // Format all events consistently
+    const formattedEvents = updatedEvents.map(event => ({
         ...event,
         start: new Date(event.start),
-        end: new Date(event.end)
+        end: new Date(event.end),
+        occurrenceDate: event.occurrenceDate ? new Date(event.occurrenceDate) : null
     }));
 
-    setEvents(currentEvents => {
-        // Remove any existing events that were updated
-        const updatedEventIds = new Set(formattedEvents.map(event => event._id));
-        const filteredEvents = currentEvents.filter(event => !updatedEventIds.has(event._id));
-        return [...filteredEvents, ...formattedEvents];
-    });
-    
+    // Replace entire events state with new array
+    setEvents(formattedEvents);
     setIsModalOpen(false);
     setEditingEvent(null);
 };
+
 
 
   const handleEventClick = (event) => {
@@ -101,15 +99,22 @@ const MyCalendar = ({ onEventUpdate }) => {
   const handleEventDelete = async (eventId) => {
     try {
       await deleteCalendarEvent(eventId);
-      setEvents((currentEvents) =>
-        currentEvents.filter((event) => event._id !== eventId)
-      );
-      setIsModalOpen(false); // Close modal if open
-      setEditingEvent(null); // Clear editing state
+      // Fetch fresh events after deletion to ensure sync
+      const updatedEvents = await getCalendarEvents();
+      const formattedEvents = updatedEvents.map(event => ({
+        ...event,
+        start: new Date(event.start),
+        end: new Date(event.end),
+        occurrenceDate: event.occurrenceDate ? new Date(event.occurrenceDate) : null
+      }));
+      setEvents(formattedEvents);
+      setIsModalOpen(false);
+      setEditingEvent(null);
     } catch (error) {
       console.error("Error deleting event:", error);
     }
-  };
+};
+
 
   // const handleEventDelete = async (eventId) => {
   //     try {

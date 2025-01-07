@@ -10,7 +10,12 @@ import Select from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import { format } from "date-fns";
-import { saveCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from "../services/calendarService";
+import {
+  saveCalendarEvent,
+  updateCalendarEvent,
+  deleteCalendarEvent,
+  getCalendarEvents
+} from "../services/calendarService";
 
 const CalendarModal = ({
   open,
@@ -57,44 +62,59 @@ const CalendarModal = ({
       setRecurrenceEndDate("");
     }
   }, [editingEvent, initialDate, todo]);
-  
+
   const handleSave = async () => {
     const eventData = {
-        title,
-        start: new Date(startDate),
-        end: new Date(endDate),
-        todoId: todo ? todo._id : null,
-        description,
-        recurrence,
-        recurrenceEndDate: recurrence === "none" ? null : new Date(recurrenceEndDate),
+      title,
+      start: new Date(startDate),
+      end: new Date(endDate),
+      todoId: todo ? todo._id : null,
+      description,
+      recurrence,
+      recurrenceEndDate:
+        recurrence === "none" ? null : new Date(recurrenceEndDate),
+      isRecurring: recurrence !== "none",
+      occurrenceDate: new Date(startDate),
     };
 
     try {
-        let savedEvents;
-        if (editingEvent) {
-            savedEvents = await updateCalendarEvent(editingEvent._id, eventData);
-            savedEvents = [savedEvents]; // Wrap in array for consistency
-        } else {
-            savedEvents = await saveCalendarEvent(eventData); // Returns array
-        }
-        onEventSaved(savedEvents);
-        onClose();
+      let savedEvents;
+      if (editingEvent) {
+        savedEvents = await updateCalendarEvent(editingEvent._id, eventData);
+        savedEvents = [savedEvents]; // Wrap in array for consistency
+      } else {
+        savedEvents = await saveCalendarEvent(eventData); // Returns array
+      }
+      onEventSaved(savedEvents);
+      onClose();
     } catch (error) {
-        console.error("Error saving event:", error);
+      console.error("Error saving event:", error);
     }
-};
+  };
 
   const handleDelete = async () => {
     if (editingEvent && editingEvent._id) {
       try {
         await deleteCalendarEvent(editingEvent._id);
-        onEventDeleted(editingEvent._id); // Notify parent component
+    
+        // Fetch fresh events after deletion
+        const updatedEvents = await getCalendarEvents();
+        const formattedEvents = updatedEvents.map(event => ({
+            ...event,
+            start: new Date(event.start),
+            end: new Date(event.end),
+            occurrenceDate: event.occurrenceDate ? new Date(event.occurrenceDate) : null
+        }));
+        
+        // Pass the full updated events list to parent
+        onEventSaved(formattedEvents);
         onClose();
       } catch (error) {
         console.error("Error deleting event:", error);
       }
     }
-  };
+};
+
 
   return (
     <Dialog open={open} onClose={onClose}>
