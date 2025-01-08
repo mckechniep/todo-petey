@@ -28,6 +28,8 @@ const MyCalendar = ({ onEventUpdate }) => {
   const [selectedTodo, setSelectedTodo] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [currentView, setCurrentView] = useState('week');
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -137,7 +139,7 @@ const MyCalendar = ({ onEventUpdate }) => {
     <div
       ref={dropRef}
       style={{
-        height: 500,
+        height: 800,
         border: isOver ? "2px solid blue" : "none",
         boxShadow: "0 8px 14px rgba(0, 0, 0, 0.15)",
         padding: "20px",
@@ -163,12 +165,17 @@ const MyCalendar = ({ onEventUpdate }) => {
         My Calendar
       </Typography>
       <Calendar
-        key={events.length}
         localizer={localizer}
         events={events}
         startAccessor="start"
         endAccessor="end"
         onSelectEvent={handleEventClick}
+        view={currentView}
+        onView={setCurrentView}
+        date={currentDate}
+        onNavigate={setCurrentDate}
+        defaultView="week"
+        scrollToTime={new Date().setHours(6, 0, 0, 0)}  // This sets default scroll to 6:00 AM
         components={{
           dateCellWrapper: (props) => {
             const { value } = props;

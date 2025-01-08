@@ -2,7 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getToDoById } from "../services/toDoService.js";
 import EditToDoForm from "./EditToDoForm.jsx";
-import { Box, Typography, Button, Card, CardContent, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Paper,
+  Stack,
+  Divider
+} from "@mui/material";
 
 const ToDoDetails = () => {
   const { id } = useParams();
@@ -64,61 +77,86 @@ const ToDoDetails = () => {
   }
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        height: "100vh",
-        px: 2,
-        mt: 5
-      }}
-    >
+    <Box sx={{ display: "flex", justifyContent: "center", p: 3, mt: 4 }}>
       {isEditing ? (
         <EditToDoForm
           todo={todo}
-          onUpdate={handleUpdate} // Update the item on successful edit
-          onCancel={() => setIsEditing(false)} // Exit edit mode without saving
+          onUpdate={handleUpdate}
+          onCancel={() => setIsEditing(false)}
         />
       ) : (
-        <Card sx={{ maxWidth: 500, width: "100%", boxShadow: 3 }}>
+        <Paper elevation={3} sx={{ maxWidth: 500, width: "100%" }}>
           <CardContent>
-            <Typography variant="h4" gutterBottom>
-              {todo.title}
+            <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
+              ToDo Details
             </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              <strong>Description:</strong> {todo.description}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              <strong>Category:</strong> {todo.category}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              <strong>Completed:</strong> {todo.completed ? "Yes" : "No"}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              <strong>Date Created:</strong>{" "}
-              {new Date(todo.createdAt).toLocaleString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </Typography>
-            <Box sx={{ textAlign: "center", mt: 4 }}>
+
+            <Stack spacing={3}>
+              <TextField
+                label="Title"
+                value={todo.title}
+                fullWidth
+                InputProps={{ readOnly: true }}
+                variant="outlined"
+              />
+
+              <TextField
+                label="Description"
+                value={todo.description}
+                fullWidth
+                multiline
+                rows={4}
+                InputProps={{ readOnly: true }}
+                variant="outlined"
+              />
+
+              <TextField
+                label="Category"
+                value={todo.category}
+                fullWidth
+                InputProps={{ readOnly: true }}
+                variant="outlined"
+              />
+
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={todo.completed}
+                    disabled
+                    color="primary"
+                  />
+                }
+                label="Completed"
+              />
+
+              <TextField
+                label="Date Created"
+                value={new Date(todo.createdAt).toLocaleString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+                fullWidth
+                InputProps={{ readOnly: true }}
+                variant="outlined"
+              />
+
               <Button
                 variant="contained"
                 color="primary"
                 onClick={() => setIsEditing(true)}
+                fullWidth
+                sx={{ mt: 2 }}
               >
                 Edit ToDo
               </Button>
-            </Box>
+            </Stack>
           </CardContent>
-        </Card>
+        </Paper>
       )}
     </Box>
   );
 };
-
 export default ToDoDetails;

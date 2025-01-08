@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { editToDo } from '../services/toDoService.js';
+import {
+    Box,
+    TextField,
+    FormControl,
+    Select,
+    MenuItem,
+    FormControlLabel,
+    Checkbox,
+    Button,
+    Typography,
+    Paper,
+    Stack
+  } from '@mui/material';
 
 
 /* Props: todo, onUpdate, OnCancel
@@ -58,62 +71,84 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-             <h2>Edit ToDo</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+        <Paper elevation={3} sx={{ p: 3, maxWidth: 500, mx: 'auto' }}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Typography variant="h5" component="h2" gutterBottom>
+                    Edit ToDo
+                </Typography>
+                
+                {error && (
+                    <Typography color="error" variant="body2">
+                        {error}
+                    </Typography>
+                )}
 
-            <div>
-                <label htmlFor="title">Title:</label>
-                <input
-                    type="text"
-                    id="title"
+                <TextField
+                    fullWidth
+                    label="Title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
+                    variant="outlined"
                 />
-            </div>
 
-            <div>
-                <label htmlFor="description">Description:</label>
-                <textarea
-                    id="description"
+                <TextField
+                    fullWidth
+                    label="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    multiline
+                    rows={4}
+                    variant="outlined"
                 />
-            </div>
 
-            <div>
-                <label htmlFor="category">Category:</label>
-                <select
-                    id="category"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                >
-                    <option value="A List">A List</option>
-                    <option value="B List">B List</option>
-                    <option value="C List">C List</option>
-                </select>
-            </div>
+                <FormControl fullWidth>
+                    <Select
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        variant="outlined"
+                        label="Category"
+                    >
+                        <MenuItem value="A List">A List</MenuItem>
+                        <MenuItem value="B List">B List</MenuItem>
+                        <MenuItem value="C List">C List</MenuItem>
+                    </Select>
+                </FormControl>
 
-            <div>
-                <label htmlFor="completed">Completed:</label>
-                <input
-                    type="checkbox"
-                    id="completed"
-                    checked={completed}
-                    onChange={(e) => setCompleted(e.target.checked)}
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={completed}
+                            onChange={(e) => setCompleted(e.target.checked)}
+                            color="primary"
+                        />
+                    }
+                    label="Completed"
                 />
-            </div>
 
-            <button type="submit" disabled={loading}>
-                {loading ? 'Saving...' : 'Save Changes'} 
-            </button>
-
-            <button type="button" onClick={onCancel} disabled={loading}>
-                Cancel
-            </button>
-        </form>
+                <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={loading}
+                        fullWidth
+                    >
+                        {loading ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        onClick={onCancel}
+                        disabled={loading}
+                        fullWidth
+                    >
+                        Cancel
+                    </Button>
+                </Stack>
+            </Box>
+        </Paper>
     );
 };
+
 
 export default EditToDoForm;
