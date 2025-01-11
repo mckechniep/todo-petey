@@ -6,6 +6,7 @@ import {
     FormControl,
     Select,
     MenuItem,
+    InputLabel,
     FormControlLabel,
     Checkbox,
     Button,
@@ -71,8 +72,13 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
     };
 
     return (
-        <Paper elevation={3} sx={{ p: 3, maxWidth: 500, mx: 'auto' }}>
-            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Paper elevation={3} sx={{ 
+            p: 3, 
+            maxWidth: 500,  
+            width: "100%",   // Match ToDoDetails width
+            mx: 'auto'       // Center the form
+        }}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <Typography variant="h5" component="h2" gutterBottom>
                     Edit ToDo
                 </Typography>
@@ -103,6 +109,7 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
                 />
 
                 <FormControl fullWidth>
+                    <InputLabel>Category</InputLabel>
                     <Select
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}

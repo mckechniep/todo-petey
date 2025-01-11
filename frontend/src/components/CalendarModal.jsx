@@ -14,7 +14,7 @@ import {
   saveCalendarEvent,
   updateCalendarEvent,
   deleteCalendarEvent,
-  getCalendarEvents
+  getCalendarEvents,
 } from "../services/calendarService";
 
 const CalendarModal = ({
@@ -34,8 +34,10 @@ const CalendarModal = ({
   const [recurrenceEndDate, setRecurrenceEndDate] = useState("");
 
   useEffect(() => {
+    console.log("Initial Date in CalendarModal:", initialDate);
+    console.log("Editing Event in CalendarModal:", editingEvent);
+  
     if (editingEvent) {
-      // Populate fields for editing an existing event
       setTitle(editingEvent.title || "");
       setStartDate(format(new Date(editingEvent.start), "yyyy-MM-dd'T'HH:mm"));
       setEndDate(format(new Date(editingEvent.end), "yyyy-MM-dd'T'HH:mm"));
@@ -47,22 +49,23 @@ const CalendarModal = ({
           : ""
       );
     } else if (initialDate) {
-      // Populate fields for creating a new event
-      const startDateTime = new Date(initialDate);
-      setTitle(todo ? todo.title : "");
-      setStartDate(format(startDateTime, "yyyy-MM-dd'T'HH:mm"));
-      setEndDate(
-        format(
-          new Date(startDateTime.getTime() + 60 * 60 * 1000),
-          "yyyy-MM-dd'T'HH:mm"
-        )
-      );
-      setDescription(todo ? todo.description : "");
-      setRecurrence("none");
-      setRecurrenceEndDate("");
+      try {
+        const startDateTime = new Date(initialDate);
+        const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1-hour duration
+  
+        setTitle(todo ? todo.title : "");
+        setStartDate(format(startDateTime, "yyyy-MM-dd'T'HH:mm"));
+        setEndDate(format(endDateTime, "yyyy-MM-dd'T'HH:mm"));
+        setDescription(todo ? todo.description : "");
+        setRecurrence("none");
+        setRecurrenceEndDate("");
+      } catch (error) {
+        console.error("Error parsing initialDate:", error);
+      }
     }
   }, [editingEvent, initialDate, todo]);
-
+  
+  
   const handleSave = async () => {
     const eventData = {
       title,
@@ -94,34 +97,34 @@ const CalendarModal = ({
 
   const handleDelete = async () => {
     if (editingEvent && editingEvent._id) {
-        if (editingEvent.isRecurring) {
-            const deleteAll = window.confirm(
-                "Do you want to delete all occurrences of this recurring event?"
-            );
-            // If user cancels, return early
-            if (!deleteAll) {
-                return;
-            }
+      if (editingEvent.isRecurring) {
+        const deleteAll = window.confirm(
+          "Do you want to delete all occurrences of this recurring event?"
+        );
+        // If user cancels, return early
+        if (!deleteAll) {
+          return;
         }
-        
-        try {
-            await deleteCalendarEvent(editingEvent._id);
-            const updatedEvents = await getCalendarEvents();
-            const formattedEvents = updatedEvents.map(event => ({
-                ...event,
-                start: new Date(event.start),
-                end: new Date(event.end),
-                occurrenceDate: event.occurrenceDate ? new Date(event.occurrenceDate) : null
-            }));
-            onEventSaved(formattedEvents);
-            onClose();
-        } catch (error) {
-            console.error("Error deleting event:", error);
-        }
+      }
+
+      try {
+        await deleteCalendarEvent(editingEvent._id);
+        const updatedEvents = await getCalendarEvents();
+        const formattedEvents = updatedEvents.map((event) => ({
+          ...event,
+          start: new Date(event.start),
+          end: new Date(event.end),
+          occurrenceDate: event.occurrenceDate
+            ? new Date(event.occurrenceDate)
+            : null,
+        }));
+        onEventSaved(formattedEvents);
+        onClose();
+      } catch (error) {
+        console.error("Error deleting event:", error);
+      }
     }
-};
-
-
+  };
 
   return (
     <Dialog open={open} onClose={onClose}>
