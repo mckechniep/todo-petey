@@ -95,15 +95,15 @@ const MyCalendar = ({ onEventUpdate }) => {
           console.log("Date before time adjustment:", dropDate);
 
           // Calculate the time from the vertical position
-          const containerRect = element.getBoundingClientRect();
-          const relativeY = dropPosition.y - containerRect.top;
-          const containerHeight = containerRect.height;
+          const containerRect = element.getBoundingClientRect(); // Retrieves size and position of element relative to viewport. The returned containerRect object will have properties like top, bottom, left, right, width and height
+          const relativeY = dropPosition.y - containerRect.top; // Determines where inside the container that the vertical drop location is. Subtracts the containers top boundy containerRect.top from the drop's Y-coordinate. 
+          const containerHeight = containerRect.height; // Stores container height in pixels.
 
-          const totalMinutesInDay = 24 * 60;
-          const minutesFromMidnight =
-            (relativeY / containerHeight) * totalMinutesInDay;
-          const hours = Math.floor(minutesFromMidnight / 60);
-          const minutes = Math.floor(minutesFromMidnight % 60);
+          const totalMinutesInDay = 24 * 60; // Total minutes in a day = 1440
+          const minutesFromMidnight = // Translates Y-coordinate of the drop into a time value
+            (relativeY / containerHeight) * totalMinutesInDay; // Dividing relativeY by containerHeight gets the drop position as a percentage of the container height. Multiply this % by totalMinutesInDay to get a time relative to midnight.
+          const hours = Math.floor(minutesFromMidnight / 60); // Gives us the hour of the day that corresponds to the drop location by converting minutes since midnight into hours (by dividing 60 and then rounding down)
+          const minutes = Math.floor((minutesFromMidnight % 60) / 30) * 30; // minutesFromMidnight % 60 finds leftover minutes after full hours. Divide this by 30 to determin how many half-hour intervals exist within this current hour (which is represented in minutes). Multiply by 30 and round to get nearest 30 min interval.
 
           dropDate.setHours(hours, minutes, 0, 0);
 
@@ -159,40 +159,6 @@ const MyCalendar = ({ onEventUpdate }) => {
     }
   };
 
-  // ****DOM Strucute Analysis and DOM Header Analysis****
-  //   const handleDrop = async (todo, monitor) => {
-  //     const dropPosition = monitor.getClientOffset();
-  //     let element = document.elementFromPoint(dropPosition.x, dropPosition.y);
-
-  //     // Debug DOM structure
-  //     console.log("DOM Structure Analysis:");
-  //     let currentElement = element;
-  //     let depth = 0;
-  //     while (currentElement && depth < 10) {
-  //         console.log(`Level ${depth}:`, {
-  //             element: currentElement,
-  //             className: currentElement.className,
-  //             dataDate: currentElement.getAttribute('data-date'),
-  //             dataTime: currentElement.getAttribute('data-time'),
-  //             innerHTML: currentElement.innerHTML.substring(0, 100) + '...' // First 100 chars for readability
-  //         });
-  //         currentElement = currentElement.parentElement;
-  //         depth++;
-  //     }
-
-  //     // Additional debugging for header structure
-  //     console.log("Header Structure:");
-  //     const headerElements = document.querySelectorAll('.rbc-header');
-  //     headerElements.forEach((header, index) => {
-  //         console.log(`Header ${index}:`, {
-  //             element: header,
-  //             className: header.className,
-  //             dataDate: header.getAttribute('data-date'),
-  //             innerHTML: header.innerHTML
-  //         });
-  //     });
-  // }
-
   const handleModalSave = async (updatedEvents) => {
     const formattedEvents = updatedEvents.map((event) => ({
       ...event,
@@ -244,12 +210,13 @@ const MyCalendar = ({ onEventUpdate }) => {
     <div
       ref={dropRef}
       style={{
-        height: 800,
+        height: '100%',
         border: isOver ? "2px solid blue" : "none",
         boxShadow: "0 8px 14px rgba(0, 0, 0, 0.15)",
         padding: "20px",
         backgroundColor: "white",
         borderRadius: "8px",
+        overflow: "scroll",
         position: "relative",
       }}
     >

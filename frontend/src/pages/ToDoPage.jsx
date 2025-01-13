@@ -69,10 +69,9 @@ const ToDoPage = () => {
                 <Box
                     sx={{
                         flex: 2,
-                        // border: '1px solid #ddd',
-                        // borderRadius: 2,
-                        // p: 2,
-                        minHeight: 400,
+                        height: '1000px',
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}
                 >
                     {/* <Typography variant="h6" gutterBottom>
