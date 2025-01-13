@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   saveCalendarEvent,
   getCalendarEvents,
@@ -30,6 +30,19 @@ const MyCalendar = ({ onEventUpdate }) => {
   const [editingEvent, setEditingEvent] = useState(null);
   const [currentView, setCurrentView] = useState("week");
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewStart, setViewStart] = useState(startOfWeek(new Date()));
+  const viewStartRef = useRef(viewStart);
+
+  // Update the ref whenever `viewStart` changes
+  useEffect(() => {
+    viewStartRef.current = viewStart;
+  }, [viewStart]);
+
+  const handleNavigate = (date) => {
+    console.log("Navigated to date:", date);
+    setViewStart(startOfWeek(date));
+    setCurrentDate(date);
+  };
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -51,100 +64,134 @@ const MyCalendar = ({ onEventUpdate }) => {
   const handleDrop = async (todo, monitor) => {
     const dropPosition = monitor.getClientOffset();
     let element = document.elementFromPoint(dropPosition.x, dropPosition.y);
-    
-    console.log("Initial drop element:", element);
 
-    // Handle drop on events container
-    if (element.classList.contains('rbc-events-container')) {
-        const dayColumn = element.closest('.rbc-day-slot');
-        if (dayColumn) {
-            // Get the header for this column to extract the date
-            const allColumns = Array.from(dayColumn.parentElement.children);
-            const columnIndex = allColumns.indexOf(dayColumn);
-            const headers = document.querySelectorAll('.rbc-header');
-            const header = headers[columnIndex];
-            
-            // Get current view's start date from Calendar
-            const viewStart = currentDate;
-            const dropDate = new Date(viewStart);
-            dropDate.setDate(dropDate.getDate() + columnIndex);
-            
-            // Calculate time from vertical position
-            const containerRect = element.getBoundingClientRect();
-            const relativeY = dropPosition.y - containerRect.top;
-            const containerHeight = containerRect.height;
-            
-            const totalMinutesInDay = 24 * 60;
-            const minutesFromMidnight = (relativeY / containerHeight) * totalMinutesInDay;
-            const hours = Math.floor(minutesFromMidnight / 60);
-            const minutes = Math.floor(minutesFromMidnight % 60);
-            
-            // Set the calculated time on our date object
-            dropDate.setHours(hours, minutes, 0, 0);
-            
-            console.log("Calculated drop details:", {
-                columnIndex,
-                hours,
-                minutes,
-                dropDate
-            });
+    // Detect the active view button
+    const activeButton = document.querySelector("button.rbc-active");
+    const activeView = activeButton
+      ? activeButton.textContent.trim().toLowerCase()
+      : null;
 
-            setSelectedTodo(todo);
-            setSelectedDate(format(dropDate, "yyyy-MM-dd'T'HH:mm"));
-            setIsModalOpen(true);
-            return;
+    // WEEKLY VIEW LOGIC
+    if (activeView === "week") {
+      console.log("Weekly view detected. Element at drop position:", element);
+
+      // Locate the column (`.rbc-time-column`)
+      const dayColumn = element.closest(".rbc-day-slot.rbc-time-column");
+
+      if (dayColumn) {
+        // Find all columns
+        const allColumns = Array.from(dayColumn.parentElement.children);
+
+        // Get the column index
+        const columnIndex = allColumns.indexOf(dayColumn) - 1;
+
+        console.log("Matched column index:", columnIndex);
+
+        if (columnIndex >= 0) {
+          // Calculate the drop date based on the week's start (viewStart)
+          const dropDate = new Date(viewStartRef.current);
+          dropDate.setDate(viewStartRef.current.getDate() + columnIndex);
+
+          console.log("Date before time adjustment:", dropDate);
+
+          // Calculate the time from the vertical position
+          const containerRect = element.getBoundingClientRect();
+          const relativeY = dropPosition.y - containerRect.top;
+          const containerHeight = containerRect.height;
+
+          const totalMinutesInDay = 24 * 60;
+          const minutesFromMidnight =
+            (relativeY / containerHeight) * totalMinutesInDay;
+          const hours = Math.floor(minutesFromMidnight / 60);
+          const minutes = Math.floor(minutesFromMidnight % 60);
+
+          dropDate.setHours(hours, minutes, 0, 0);
+
+          console.log("Final drop date for weekly view:", dropDate);
+
+          // Update state and open modal
+          setSelectedTodo(todo);
+          setSelectedDate(format(dropDate, "yyyy-MM-dd'T'HH:mm"));
+          setIsModalOpen(true);
+          return;
         }
-    }
+      }
+    } else if (activeView === "day") {
+      // DAY VIEW LOGIC
+      const headerSpan = document.querySelector('span[role="columnheader"]');
+      const headerDate = headerSpan ? headerSpan.textContent.trim() : null;
 
-    // Existing fallback logic for month view...
-    const dateCell = element.closest('.rbc-date-cell');
-    if (dateCell) {
-        const dateAttr = dateCell.getAttribute('data-date');
+      if (headerDate) {
+        const day = headerDate.split(" ")[0];
+        const month = currentDate.getMonth();
+        const year = currentDate.getFullYear();
+
+        const dropDate = new Date(year, month, parseInt(day));
+        const containerRect = element.getBoundingClientRect();
+        const relativeY = dropPosition.y - containerRect.top;
+        const containerHeight = containerRect.height;
+
+        const totalMinutesInDay = 24 * 60;
+        const minutesFromMidnight =
+          (relativeY / containerHeight) * totalMinutesInDay;
+        const hours = Math.floor(minutesFromMidnight / 60);
+        const minutes = Math.floor(minutesFromMidnight % 60);
+
+        dropDate.setHours(hours, minutes, 0, 0);
+
+        setSelectedTodo(todo);
+        setSelectedDate(format(dropDate, "yyyy-MM-dd'T'HH:mm"));
+        setIsModalOpen(true);
+        return;
+      }
+    } else if (activeView === "month") {
+      // MONTH VIEW LOGIC
+      const dateCell = element.closest(".rbc-date-cell");
+      if (dateCell) {
+        const dateAttr = dateCell.getAttribute("data-date");
         if (dateAttr) {
-            const dropDateTime = new Date(`${dateAttr}T09:00`);
-            setSelectedTodo(todo);
-            setSelectedDate(format(dropDateTime, "yyyy-MM-dd'T'HH:mm"));
-            setIsModalOpen(true);
+          const dropDateTime = new Date(`${dateAttr}T09:00`);
+          setSelectedTodo(todo);
+          setSelectedDate(format(dropDateTime, "yyyy-MM-dd'T'HH:mm"));
+          setIsModalOpen(true);
         }
+      }
     }
-};
+  };
 
+  // ****DOM Strucute Analysis and DOM Header Analysis****
+  //   const handleDrop = async (todo, monitor) => {
+  //     const dropPosition = monitor.getClientOffset();
+  //     let element = document.elementFromPoint(dropPosition.x, dropPosition.y);
 
+  //     // Debug DOM structure
+  //     console.log("DOM Structure Analysis:");
+  //     let currentElement = element;
+  //     let depth = 0;
+  //     while (currentElement && depth < 10) {
+  //         console.log(`Level ${depth}:`, {
+  //             element: currentElement,
+  //             className: currentElement.className,
+  //             dataDate: currentElement.getAttribute('data-date'),
+  //             dataTime: currentElement.getAttribute('data-time'),
+  //             innerHTML: currentElement.innerHTML.substring(0, 100) + '...' // First 100 chars for readability
+  //         });
+  //         currentElement = currentElement.parentElement;
+  //         depth++;
+  //     }
 
-
-// ****DOM Strucute Analysis and DOM Header Analysis****
-//   const handleDrop = async (todo, monitor) => {
-//     const dropPosition = monitor.getClientOffset();
-//     let element = document.elementFromPoint(dropPosition.x, dropPosition.y);
-
-//     // Debug DOM structure
-//     console.log("DOM Structure Analysis:");
-//     let currentElement = element;
-//     let depth = 0;
-//     while (currentElement && depth < 10) {
-//         console.log(`Level ${depth}:`, {
-//             element: currentElement,
-//             className: currentElement.className,
-//             dataDate: currentElement.getAttribute('data-date'),
-//             dataTime: currentElement.getAttribute('data-time'),
-//             innerHTML: currentElement.innerHTML.substring(0, 100) + '...' // First 100 chars for readability
-//         });
-//         currentElement = currentElement.parentElement;
-//         depth++;
-//     }
-
-//     // Additional debugging for header structure
-//     console.log("Header Structure:");
-//     const headerElements = document.querySelectorAll('.rbc-header');
-//     headerElements.forEach((header, index) => {
-//         console.log(`Header ${index}:`, {
-//             element: header,
-//             className: header.className,
-//             dataDate: header.getAttribute('data-date'),
-//             innerHTML: header.innerHTML
-//         });
-//     });
-// }
+  //     // Additional debugging for header structure
+  //     console.log("Header Structure:");
+  //     const headerElements = document.querySelectorAll('.rbc-header');
+  //     headerElements.forEach((header, index) => {
+  //         console.log(`Header ${index}:`, {
+  //             element: header,
+  //             className: header.className,
+  //             dataDate: header.getAttribute('data-date'),
+  //             innerHTML: header.innerHTML
+  //         });
+  //     });
+  // }
 
   const handleModalSave = async (updatedEvents) => {
     const formattedEvents = updatedEvents.map((event) => ({
@@ -231,38 +278,38 @@ const MyCalendar = ({ onEventUpdate }) => {
         view={currentView}
         onView={setCurrentView}
         date={currentDate}
-        onNavigate={setCurrentDate}
+        onNavigate={handleNavigate}
         defaultView="week"
         scrollToTime={new Date().setHours(6, 0, 0, 0)}
         step={30}
         components={{
-            // Handles tiem slots in week/day views
-            timeSlotWrapper: (props) => (
-                <div
-                    className="rbc-time-slot"
-                    data-time={format(props.value, "HH:mm")}
-                >
-                    {props.children}
-                </div>
-            ),
-            // Handles day columns in week/day views
-            dayWrapper: (props) => (
-                <div
-                    className="rbc-time-column rbc-day-slot"
-                    data-date={format(props.value, "yyyy-MM-dd")}
-                >
-                    {props.children}
-                </div>
-            ),
-            // Handles date cells in month view
-            dateCellWrapper: (props) => (
-                <div
-                    className="rbc-date-cell"
-                    data-date={format(props.value, "yyyy-MM-dd")}
-                >
-                    {props.children}
-                </div>
-            )
+          // Handles tiem slots in week/day views
+          timeSlotWrapper: (props) => (
+            <div
+              className="rbc-time-slot"
+              data-time={format(props.value, "HH:mm")}
+            >
+              {props.children}
+            </div>
+          ),
+          // Handles day columns in week/day views
+          dayWrapper: (props) => (
+            <div
+              className="rbc-time-column rbc-day-slot"
+              data-date={format(props.value, "yyyy-MM-dd")}
+            >
+              {props.children}
+            </div>
+          ),
+          // Handles date cells in month view
+          dateCellWrapper: (props) => (
+            <div
+              className="rbc-date-cell"
+              data-date={format(props.value, "yyyy-MM-dd")}
+            >
+              {props.children}
+            </div>
+          ),
         }}
       />
       <CalendarModal
