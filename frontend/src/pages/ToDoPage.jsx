@@ -48,6 +48,7 @@ const ToDoPage = () => {
                         borderRadius: 2,
                         p: 2,
                         minHeight: 400,
+                        boxShadow: "0 8px 14px rgba(0, 0, 0, 0.15)",
                     }}
                 >
                     <Box sx={{ flexGrow: 1 }}>
@@ -69,7 +70,7 @@ const ToDoPage = () => {
                 <Box
                     sx={{
                         flex: 2,
-                        height: '1000px',
+                        height: '800px',
                         display: 'flex',
                         flexDirection: 'column'
                     }}

@@ -6,6 +6,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import { signOut } from "../services/authService";
 
 const Navbar = () => {
   const { setUser } = useAuth(); // Access the setUser function from context
@@ -13,13 +14,12 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     try {
-      await api.post("/users/signout"); // Call the backend signout endpoint
-      localStorage.removeItem("token"); // Clear the token from localStorage
-      setUser(null); // Clear the user context
-      navigate("/signin"); // Redirect to the sign-in page
+      await signOut();
+      setUser(null);
+      navigate('/signin');
     } catch (error) {
-      console.error("Error signing out:", error);
-      alert("Failed to sign out. Please try again.");
+      console.error('Error signing out:', error);
+      alert('Failed to sign out. Please try again.');
     }
   };
 

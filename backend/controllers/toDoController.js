@@ -1,15 +1,9 @@
 import ToDo from "../models/toDo.js";
-import User from "../models/user.js";
 
 export const createToDo = async (req, res) => {
   try {
     const { title, description, category, completed } = req.body;
     const userId = req.user.id; // get userId from verified token
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
 
     if (!title) {
       return res.status(400).json({ error: "Title is required" });
