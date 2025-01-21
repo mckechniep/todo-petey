@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../services/api"; // Import API instance
 import { useAuth } from "../services/AuthContext";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -9,19 +8,23 @@ import Button from "@mui/material/Button";
 import { signOut } from "../services/authService";
 
 const Navbar = () => {
-  const { setUser } = useAuth(); // Access the setUser function from context
+  const { user, setUser, loading } = useAuth(); // Include loading state
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
       await signOut();
       setUser(null);
-      navigate('/signin');
+      navigate("/signin");
     } catch (error) {
-      console.error('Error signing out:', error);
-      alert('Failed to sign out. Please try again.');
+      console.error("Error signing out:", error);
+      alert("Failed to sign out. Please try again.");
     }
   };
+
+  if (loading) {
+    return null; // Avoid rendering the navbar while loading
+  }
 
   return (
     <AppBar position="static">
@@ -29,12 +32,23 @@ const Navbar = () => {
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           ABC Planner
         </Typography>
-        <Button color="inherit" component={Link} to="/todos">
-          Dashboard
-        </Button>
-        <Button color="inherit" onClick={handleSignOut}>
-          Sign Out
-        </Button>
+        {user ? (
+          <>
+            <Button color="inherit" component={Link} to="/todos">
+              Dashboard
+            </Button>
+            <Button color="inherit" component={Link} to="/journal">
+              Journals
+            </Button>
+            <Button color="inherit" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          </>
+        ) : (
+          <Button color="inherit" component={Link} to="/signin">
+            Sign In
+          </Button>
+        )}
       </Toolbar>
     </AppBar>
   );

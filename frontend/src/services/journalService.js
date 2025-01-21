@@ -28,7 +28,7 @@ export const newEntry = async (entry) => {
 export const editEntry = async (id, updatedEntry) => {
     const token = localStorage.getItem("token");
     const res = await api.put(`/journal/${id}`, updatedEntry, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
+        headers: { Authorization: `Bearer ${token}`},
     });
     return res.data;
 };
@@ -36,13 +36,7 @@ export const editEntry = async (id, updatedEntry) => {
 export const deleteEntry = async (id) => {
     const token = localStorage.getItem("token");
     const res = await api.delete(`/journal/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
+        headers: { Authorization: `Bearer ${token}`},
     });
     return res.data;
-}
-
-// router.post('/', verifyToken, newEntry);
-// router.get('/', verifyToken, getEntries);
-// router.get('/:id', verifyToken, getEntryById);
-// router.put(':/id', verifyToken, editEntry);
-// router.delete('/:id', verifyToken, deleteEntry);
+};

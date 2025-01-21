@@ -2,26 +2,18 @@ import React, { useState } from 'react';
 import ToDoList from '../components/ToDoList.jsx';
 import ToDoForm from '../components/ToDoForm.jsx';
 import MyCalendar from '../components/MyCalendar.jsx';
-import { useAuth } from '../services/AuthContext.jsx';
 import { Modal, Box, Button, Typography } from '@mui/material';
+import { useAuth } from '../services/AuthContext.jsx';
 
 const ToDoPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [newToDo, setNewToDo] = useState(null);
-    const { user, loading: authLoading } = useAuth();
+    const { user } = useAuth();
 
     const handleCreateToDo = (createdToDo) => {
         setNewToDo(createdToDo);
         setShowModal(false);
     };
-
-    if (authLoading) {
-        return <p>Loading authentication...</p>;
-    }
-
-    if (!user) {
-        return <p>Please log in to view your ToDos.</p>;
-    }
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}>
