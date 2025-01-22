@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { getEntries } from "../services/journalService";
+import { getEntries, deleteEntry } from "../services/journalService"; // Import deleteEntry function
 import { Link } from "react-router-dom";
-import { Box, Typography, List, ListItem, Button } from "@mui/material";
+import { Box, Typography, List, ListItem, Button, Checkbox } from "@mui/material";
 import { EditorState, convertFromRaw } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -10,7 +10,9 @@ const JournalList = () => {
   const [entries, setEntries] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedEntries, setSelectedEntries] = useState([]); // Track selected entries for bulk delete
 
+  // Fetch journal entries when the page changes
   useEffect(() => {
     const fetchEntries = async () => {
       try {
@@ -35,15 +37,58 @@ const JournalList = () => {
     }
   };
 
+  // Handle selection toggling
+  const handleSelectEntry = (id) => {
+    setSelectedEntries((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((entryId) => entryId !== id) // Remove if already selected
+        : [...prevSelected, id] // Add if not selected
+    );
+  };
+
+  // Handle bulk delete
+  const handleBulkDelete = async () => {
+    try {
+        await deleteEntry(selectedEntries); // Pass the array of IDs directly
+        setEntries((prevEntries) =>
+            prevEntries.filter((entry) => !selectedEntries.includes(entry._id))
+        ); // Remove deleted entries from the state
+        setSelectedEntries([]); // Clear selected entries
+    } catch (error) {
+        console.error("Error deleting entries:", error);
+        alert("Failed to delete selected entries. Please try again.");
+    }
+};
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
         My Journal Entries
       </Typography>
+
+      {/* List of Journal Entries */}
       <List>
         {entries.map((entry) => (
-          <ListItem key={entry._id} sx={{ mb: 4 }}>
-            <Box>
+          <ListItem
+            key={entry._id}
+            sx={{
+              display: "flex",
+              alignItems: "flex-start",
+              mb: 4,
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+              padding: "10px",
+              backgroundColor: "#f9f9f9",
+            }}
+          >
+            {/* Checkbox for Selection */}
+            <Checkbox
+              checked={selectedEntries.includes(entry._id)}
+              onChange={() => handleSelectEntry(entry._id)}
+            />
+
+            {/* Entry Content */}
+            <Box sx={{ flexGrow: 1 }}>
               {/* Title with link to entry details */}
               <Link to={`/journal/${entry._id}`}>
                 <Typography variant="h6" sx={{ textDecoration: "underline" }}>
@@ -54,12 +99,8 @@ const JournalList = () => {
               {/* Preview of the content */}
               <Box
                 sx={{
-                  border: "1px solid #ddd",
-                  borderRadius: "4px",
-                  padding: "10px",
-                  minHeight: "100px",
                   mt: 1,
-                  backgroundColor: "#f9f9f9",
+                  minHeight: "100px",
                 }}
               >
                 <Editor
@@ -73,13 +114,24 @@ const JournalList = () => {
         ))}
       </List>
 
+      {/* Bulk Delete Button */}
+      <Button
+        variant="contained"
+        color="error"
+        onClick={handleBulkDelete}
+        disabled={selectedEntries.length === 0} // Disable if no entries are selected
+        sx={{ mb: 2 }}
+      >
+        Delete Selected
+      </Button>
+
       {/* Add New Entry Button */}
       <Button
         component={Link}
         to="/journal/new"
         variant="contained"
         color="primary"
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, ml: 2 }}
       >
         Add New Entry
       </Button>

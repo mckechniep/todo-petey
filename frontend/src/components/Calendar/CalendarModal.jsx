@@ -15,7 +15,7 @@ import {
   updateCalendarEvent,
   deleteCalendarEvent,
   getCalendarEvents,
-} from "../services/calendarService";
+} from "../../services/calendarService";
 
 const CalendarModal = ({
   open,

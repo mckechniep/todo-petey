@@ -9,5 +9,6 @@ router.get('/', verifyToken, getEntries);
 router.get('/:id', verifyToken, getEntryById);
 router.put(':/id', verifyToken, editEntry);
 router.delete('/:id', verifyToken, deleteEntry);
+router.delete('/bulk-delete', verifyToken, deleteEntry);
 
 export default router;

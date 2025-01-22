@@ -33,10 +33,23 @@ export const editEntry = async (id, updatedEntry) => {
     return res.data;
 };
 
-export const deleteEntry = async (id) => {
+export const deleteEntry = async (idOrIds) => {
     const token = localStorage.getItem("token");
-    const res = await api.delete(`/journal/${id}`, {
-        headers: { Authorization: `Bearer ${token}`},
-    });
-    return res.data;
+    const isArray = Array.isArray(idOrIds);
+
+    if (isArray) {
+        // Bulk delete: Send IDs in the body
+        const res = await api.delete('/journal/bulk-delete', {
+            headers: { Authorization: `Bearer ${token}` },
+            data: { ids: idOrIds }, // Pass IDs array in the body
+        });
+        return res.data;
+    } else {
+        // Single delete: Use ID in the URL
+        const res = await api.delete(`/journal/${idOrIds}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data;
+    }
 };
+

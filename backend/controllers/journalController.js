@@ -98,44 +98,44 @@ export const editEntry = async (req, res) => {
 };
 
 export const deleteEntry = async (req, res) => {
-    const { id } = req.params;
-    const { ids } = req.body; // array of IDs from the request body
+    const { id } = req.params; // Single ID
+    const { ids } = req.body; // Array of IDs
     const userId = req.user.id;
 
     try {
-        // bulk journal entry deletion
-        if (ids && Array.isArray(ids)) { // built in JS function to check if a variable is an array
-            const resut = await JournalEntry.deleteMany({
-                _id: { $in: ids }, // deletes documents where _id field matches any of the IDs the ids array
-                user: userId, // Ensures only entries belonging to the authenticated user (userId) are deleted.
+        if (ids && Array.isArray(ids)) {
+            // Bulk deletion
+            const result = await JournalEntry.deleteMany({
+                _id: { $in: ids },
+                user: userId,
             });
-        
 
-        if (result.deletedCount === ids.length) {
-            return res.status(200).json({
-                message: `${result.deletedCount} journal entries successfully deleted`
-            });
+            if (result.deletedCount === ids.length) {
+                return res.status(200).json({
+                    message: `${result.deletedCount} journal entries successfully deleted`,
+                });
+            } else {
+                return res.status(400).json({
+                    error: "Some journal entries could not be deleted. Please try again later.",
+                });
+            }
+        } else if (id) {
+            // Single deletion
+            const entry = await JournalEntry.findById(id);
+
+            if (!entry) {
+                return res.status(404).json({ error: "Journal entry not found" });
+            }
+
+            if (entry.user.toString() !== userId) {
+                return res.status(403).json({ error: "Not authorized to delete this journal entry" });
+            }
+
+            await JournalEntry.findByIdAndDelete(id);
+
+            return res.status(200).json({ message: "Journal entry successfully deleted" });
         } else {
-            return res.status(400).json({
-                error: "Some journal entries could not be deleted. Please try again later."
-            });
-        }
-    } else if (id) {
-        // single journal entry deletion
-        const entry = await JournalEntry.findById(id);
-
-        if (!entry) {
-            return res.status(404).json({ error: "Journal entry not found "});
-        }
-
-        if (entry.user.toString() !== userId) {
-            return res.status(403).json({ error: "Not authorized to edit this journal entry" });
-        }
-
-       await JournalEntry.findOneAndDelete(id);
-       return res.status(200).json({ message: "Journal entry succesfully deleted" });
-        } else {
-            return res.status(400).json({ error: "Invalid request. Prove an ID or an array of IDs." });
+            return res.status(400).json({ error: "Invalid request. Provide an ID or an array of IDs." });
         }
     } catch (error) {
         console.error("Error deleting journal entry:", error);

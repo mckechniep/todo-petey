@@ -4,13 +4,13 @@ import {
   getCalendarEvents,
   deleteCalendarEvent,
   updateCalendarEvent,
-} from "../services/calendarService.js";
+} from "../../services/calendarService.js";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { useDrop } from "react-dnd";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import CalendarModal from "./CalendarModal";
+import CalendarModal from "./CalendarModal.jsx";
 import { Typography } from "@mui/material";
 
 const locales = { "en-US": enUS };

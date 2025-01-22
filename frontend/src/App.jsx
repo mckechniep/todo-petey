@@ -11,11 +11,11 @@ import Navbar from "./components/Navbar.jsx"; // Import routing components
 import ToDoPage from "./pages/ToDoPage.jsx"; // Import your ToDoPage
 import LoginPage from "./pages/LoginPage.jsx"; 
 import SignupPage from "./pages/SignupPage.jsx"; 
-import ToDoDetails from "./components/ToDoDetails.jsx"; // Import ToDoDetails
-import MyCalendar from "./components/MyCalendar.jsx";
+import ToDoDetails from "./components/ToDo/ToDoDetails.jsx"; // Import ToDoDetails
+import MyCalendar from "./components/Calendar/MyCalendar.jsx";
 import JournalList from "./pages/JournalList.jsx";
 import JournalForm from "./pages/JournalForm.jsx";
-import JournalDetails from "./components/JournalDetails.jsx";
+import JournalDetails from "./pages/JournalDetails.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 function App() {

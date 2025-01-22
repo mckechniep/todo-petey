@@ -4,12 +4,14 @@ import { EditorState, convertToRaw } from "draft-js";
 import { newEntry } from "../services/journalService.js";
 import { Box, TextField, Button, Typography } from "@mui/material";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import { useNavigate } from "react-router-dom";
 
 const JournalForm = ({ onSubmit }) => {
   const [title, setTitle] = useState("");
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
   const [tags, setTags] = useState("");
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,9 +23,11 @@ const JournalForm = ({ onSubmit }) => {
         content: rawContent, // Store content as a JSON string
         tags: tags.split(",").map((tag) => tag.trim()), // Convert comma-separated tags to an array
       };
-      const finishedEntry = await newEntry(entryDetails);
-      onSubmit(finishedEntry); // Notify the parent component of the new entry
+      
+      await newEntry(entryDetails);
+      navigate("/journal");
     } catch (error) {
+      console.error("Error creating journal entry:", error);
       setError("Failed to create entry.");
     }
   };

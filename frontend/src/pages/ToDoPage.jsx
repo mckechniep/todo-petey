@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import ToDoList from '../components/ToDoList.jsx';
-import ToDoForm from '../components/ToDoForm.jsx';
-import MyCalendar from '../components/MyCalendar.jsx';
+import ToDoList from '../components/ToDo/ToDoList.jsx';
+import ToDoForm from '../components/ToDo/ToDoForm.jsx';
+import MyCalendar from '../components/Calendar/MyCalendar.jsx';
 import { Modal, Box, Button, Typography } from '@mui/material';
 import { useAuth } from '../services/AuthContext.jsx';
 
