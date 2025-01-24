@@ -4,6 +4,8 @@ import { useDrag } from "react-dnd";
 import EditToDoForm from "./EditToDoForm.jsx";
 import { getToDos, editToDo } from "../../services/toDoService.js";
 import { useAuth } from "../../services/AuthContext.jsx";
+import categoryService from "../../services/categoryService.js";
+import CreateCategoryModal from "../Category/CreateCategoryModal.jsx";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -25,9 +27,26 @@ const ToDoList = ({ newToDo }) => {
   const [editingToDo, setEditingToDo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   const { user, loading: authLoading } = useAuth();
 
+  // fetch categories from the backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await categoryService.getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+
+  // fetch todos from the backend
   useEffect(() => {
     const fetchTodos = async () => {
       if (!authLoading && user) {
@@ -45,12 +64,21 @@ const ToDoList = ({ newToDo }) => {
     fetchTodos();
   }, [authLoading, user]);
 
+
+  // add a newtodo to the list
   useEffect(() => {
     if (newToDo) {
       setTodos((prevTodos) => [...prevTodos, newToDo]);
     }
   }, [newToDo]);
 
+  
+  // Callback to update categories when a new category is created
+  const handleCategoryCreated = (newCategory) => {
+    setCategories((prevCategories) => [...prevCategories, newCategory]);
+  };
+
+  // filter todos based on selected category
   const filteredTodos = todos.filter((todo) => {
     if (selectedCategory === "All") return !todo.completed;
     if (selectedCategory === "Completed") return todo.completed;
@@ -109,7 +137,7 @@ const ToDoList = ({ newToDo }) => {
           marginBottom: "20px",
         }}
       >
-        A/B/C Lists
+        Your Lists
       </Typography>
 
       {editingToDo ? (
@@ -128,13 +156,16 @@ const ToDoList = ({ newToDo }) => {
             sx={{ mb: 2, width: "200px" }}
           >
             <MenuItem value="All">All</MenuItem>
-            {["A List", "B List", "C List"].map((category) => (
-              <MenuItem key={category} value={category}>
-                {category}
+            {categories.map((category) => (
+              <MenuItem key={category._id} value={category.title}>
+                {category.title}
               </MenuItem>
             ))}
             <MenuItem value="Completed">Completed</MenuItem>
           </Select>
+          <CreateCategoryModal onCategoryCreated={handleCategoryCreated} />
+
+
           <Button onClick={() => setSelectedCategory("All")} sx={{ mb: 2 }}>
             Clear Filter
           </Button>

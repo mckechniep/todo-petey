@@ -5,9 +5,8 @@ const ToDoSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, default: "Enter a description here"},
     category: { 
-        type: String, 
-        enum: ['A List', 'B List', 'C List'],
-        default: 'A List',
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category"
     },
     completed: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },

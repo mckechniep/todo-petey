@@ -1,5 +1,4 @@
 import JournalEntry from '../models/journalEntry.js';
-import mongoose from 'mongoose';
 
 export const newEntry = async (req, res) => {
     try {

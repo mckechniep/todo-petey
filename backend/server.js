@@ -7,6 +7,7 @@ import usersRouter from "./routes/userRoutes.js";
 import toDoRouter from "./routes/toDoRoutes.js";
 import calendarRouter from "./routes/calendarRoutes.js";
 import journalRouter from "./routes/journalRoutes.js";
+import categoryRouter from "./routes/categoryRoutes.js";
 
 
 // Load environment variables 
@@ -25,6 +26,7 @@ app.use('/api/users', usersRouter)
 app.use('/api/todos', toDoRouter);
 app.use('/api/calendar', calendarRouter);
 app.use('/api/journal', journalRouter);
+app.use('/api/category', categoryRouter);
 
 const MONGODB_URI = process.env.MONGODB_URI;
 

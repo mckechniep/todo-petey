@@ -79,21 +79,26 @@ const CalendarModal = ({
       isRecurring: recurrence !== "none",
       occurrenceDate: new Date(startDate),
     };
-
+  
     try {
-      let savedEvents;
       if (editingEvent) {
-        savedEvents = await updateCalendarEvent(editingEvent._id, eventData);
-        savedEvents = [savedEvents]; // Wrap in array for consistency
+        // Update an existing event
+        await updateCalendarEvent(editingEvent._id, eventData);
       } else {
-        savedEvents = await saveCalendarEvent(eventData); // Returns array
+        // Save a new event
+        await saveCalendarEvent(eventData);
       }
-      onEventSaved(savedEvents);
-      onClose();
+  
+      // Fetch all events to update the calendar
+      const allEvents = await getCalendarEvents();
+      onEventSaved(allEvents); // Pass all events to the calendar
+  
+      onClose(); // Close the modal after saving
     } catch (error) {
       console.error("Error saving event:", error);
     }
   };
+  
 
   const handleDelete = async () => {
     if (editingEvent && editingEvent._id) {
