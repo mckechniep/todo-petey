@@ -22,7 +22,11 @@ const categoryService = {
 
   // Edit an existing category
   editCategory: async (id, title) => {
-    const response = await api.put(`/category/${id}`, { title });
+    const token = localStorage.getItem("token");
+    const response = await api.put(`/category/${id}`, { title },
+        { 
+        headers: { Authorization: `Bearer ${token}` },
+    });
     return response.data;
   },
 

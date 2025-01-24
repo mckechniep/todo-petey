@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getToDoById } from "../../services/toDoService.js";
+import categoryService from "../../services/categoryService.js";
 import EditToDoForm from "./EditToDoForm.jsx";
 import {
   Box,
@@ -23,6 +24,7 @@ const ToDoDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchToDo = async () => {
@@ -39,6 +41,19 @@ const ToDoDetails = () => {
 
     fetchToDo();
   }, [id]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await categoryService.getCategories();
+        setCategories(data);
+
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleUpdate = (updatedToDo) => {
     setTodo(updatedToDo); // Update the current ToDo with new data

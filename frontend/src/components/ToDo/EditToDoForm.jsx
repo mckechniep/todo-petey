@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { editToDo } from "../../services/toDoService.js";
-import categoryService from "../../services/categoryService.js"; // For fetching categories
+import categoryService from "../../services/categoryService.js";
+import CreateCategoryModal from "../Category/CreateCategoryModal.jsx";
 import {
   Box,
   TextField,
@@ -20,7 +21,7 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
   const [title, setTitle] = useState(todo.title || "");
   const [description, setDescription] = useState(todo.description || "");
   const [category, setCategory] = useState(todo.category || "");
-  const [categories, setCategories] = useState([]); // To hold the list of categories
+  const [categories, setCategories] = useState([]); // List of categories
   const [completed, setCompleted] = useState(todo.completed || false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -47,6 +48,12 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
     setCategory(todo.category || "");
     setCompleted(todo.completed || false);
   }, [todo]);
+
+  // Callback for updating categories when a new one is created
+  const handleCategoryCreated = (newCategory) => {
+    setCategories((prevCategories) => [...prevCategories, newCategory]);
+    setCategory(newCategory.name); // Automatically select the new category
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,6 +104,7 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
           </Typography>
         )}
 
+        {/* ToDo Title */}
         <TextField
           fullWidth
           label="Title"
@@ -106,6 +114,7 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
           variant="outlined"
         />
 
+        {/* ToDo Description */}
         <TextField
           fullWidth
           label="Description"
@@ -116,27 +125,32 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
           variant="outlined"
         />
 
-        <FormControl fullWidth>
-          <InputLabel>Category</InputLabel>
-          <Select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            variant="outlined"
-            label="Category"
-            disabled={categories.length === 0} // Disable if no categories available
-          >
-            {categories.length > 0 ? (
-              categories.map((cat) => (
-                <MenuItem key={cat._id} value={cat.name}>
-                  {cat.name}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem disabled>No categories available</MenuItem>
-            )}
-          </Select>
-        </FormControl>
+        {/* Category Selection with Create Button */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <FormControl fullWidth>
+            <InputLabel>Category</InputLabel>
+            <Select
+              value={category || "" }
+              onChange={(e) => setCategory(e.target.value)}
+              variant="outlined"
+              label="Category"
+              disabled={categories.length === 0} // Disable if no categories available
+            >
+              {categories.length > 0 ? (
+                categories.map((cat) => (
+                  <MenuItem key={cat._id} value={cat._id}>
+                    {cat.title}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>No categories available</MenuItem>
+              )}
+            </Select>
+          </FormControl>
+          <CreateCategoryModal onCategoryCreated={handleCategoryCreated} />
+        </Box>
 
+        {/* Completed Checkbox */}
         <FormControlLabel
           control={
             <Checkbox
@@ -148,6 +162,7 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
           label="Completed"
         />
 
+        {/* Submit and Cancel Buttons */}
         <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
           <Button
             type="submit"

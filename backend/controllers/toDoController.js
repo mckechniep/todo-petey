@@ -1,4 +1,6 @@
 import ToDo from "../models/toDo.js";
+import Category from "../models/category.js";
+import mongoose from "mongoose";
 
 export const createToDo = async (req, res) => {
   try {
@@ -65,37 +67,50 @@ export const getToDoById = async (req, res) => {
   }
 };
 
-
 export const editToDo = async (req, res) => {
-  const { id } = req.params; //getting the To-Do ID, as we use to find toDo by ID in DB
-  const { title, description, category, completed } = req.body;
-  const userId = req.user.id; //User ID from token
+  const { id } = req.params; // ToDo ID
+  const { title, description, category, completed } = req.body; // Fields to update
+  const userId = req.user.id; // User ID from token
 
   try {
+    // Find the ToDo by ID
     const todo = await ToDo.findById(id);
 
     if (!todo) {
       return res.status(404).json({ error: "ToDo not found" });
     }
 
-    /* todo.user refers to MongoDB ObjectID (the field in my schema)
-        that links the ToDo to the user who owns it, toString converts it to a 
-        string for comparison with userId, which is extracted from JWT token*/
+    // Check if the user owns the ToDo
     if (todo.user.toString() !== userId) {
       return res
         .status(403)
         .json({ error: "Not authorized to edit this ToDo" });
     }
 
+    // Validate the category if provided
+    if (category) {
+      const categoryExists = await Category.findById(category);
+      if (!categoryExists) {
+        return res.status(400).json({ error: "Invalid category ID" });
+      }
+    }
+
+    // Update the ToDo
     const updatedToDo = await ToDo.findByIdAndUpdate(
       id,
       { title, description, category, completed },
       { new: true }
-    );
+    ).populate("category"); // Populate category for the response
 
     res.status(200).json(updatedToDo);
   } catch (error) {
     console.error("Error editing ToDo:", error);
+
+    // Handle invalid ObjectID errors (e.g., invalid ToDo or category ID)
+    if (error instanceof mongoose.Error.CastError) {
+      return res.status(400).json({ error: "Invalid ID format" });
+    }
+
     res.status(500).json({ error: "Internal server error" });
   }
 };
