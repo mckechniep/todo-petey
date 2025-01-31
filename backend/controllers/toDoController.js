@@ -36,7 +36,7 @@ export const getToDos = async (req, res) => {
     const userId = req.user._id; // req.user is set via middleware (verifyToken)
 
      // Find all todos associated with the logged-in user
-    const todos = await ToDo.find({ user: userId });
+    const todos = await ToDo.find({ user: userId }).populate("category", "title");
 
     if (!todos) {
       return res.status(404).json({ error: "No ToDos found for this user" });;
@@ -53,9 +53,9 @@ export const getToDos = async (req, res) => {
 export const getToDoById = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    // const userId = req.user.id;
 
-    const todo = await ToDo.findOne({ _id: id, user: userId });
+    const todo = await ToDo.findById(id).populate("category", "title");
 
     if (!todo) {
       return res.status(404).json({ error: "ToDo not found" });

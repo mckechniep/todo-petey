@@ -15,7 +15,7 @@ import {
   Checkbox,
   Paper,
   Stack,
-  Divider
+  Divider,
 } from "@mui/material";
 
 const ToDoDetails = () => {
@@ -47,7 +47,6 @@ const ToDoDetails = () => {
       try {
         const data = await categoryService.getCategories();
         setCategories(data);
-
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -127,7 +126,7 @@ const ToDoDetails = () => {
 
               <TextField
                 label="Category"
-                value={todo.category}
+                value={todo.category?.title || "No category assigned"}
                 fullWidth
                 InputProps={{ readOnly: true }}
                 variant="outlined"
@@ -135,11 +134,7 @@ const ToDoDetails = () => {
 
               <FormControlLabel
                 control={
-                  <Checkbox
-                    checked={todo.completed}
-                    disabled
-                    color="primary"
-                  />
+                  <Checkbox checked={todo.completed} disabled color="primary" />
                 }
                 label="Completed"
               />

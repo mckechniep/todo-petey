@@ -20,7 +20,7 @@ import {
 const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
   const [title, setTitle] = useState(todo.title || "");
   const [description, setDescription] = useState(todo.description || "");
-  const [category, setCategory] = useState(todo.category || "");
+  const [category, setCategory] = useState(todo.category?._id || "");
   const [categories, setCategories] = useState([]); // List of categories
   const [completed, setCompleted] = useState(todo.completed || false);
   const [error, setError] = useState(null);
@@ -45,7 +45,7 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
   useEffect(() => {
     setTitle(todo.title || "");
     setDescription(todo.description || "");
-    setCategory(todo.category || "");
+    setCategory(todo.category?._id || "");
     setCompleted(todo.completed || false);
   }, [todo]);
 
@@ -130,7 +130,7 @@ const EditToDoForm = ({ todo, onUpdate, onCancel }) => {
           <FormControl fullWidth>
             <InputLabel>Category</InputLabel>
             <Select
-              value={category || "" }
+              value={category}
               onChange={(e) => setCategory(e.target.value)}
               variant="outlined"
               label="Category"

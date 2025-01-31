@@ -8,7 +8,7 @@ const ToDoForm = ({ onSubmit }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState(""); // Store selected category
-  const [categories, setCategories] = useState([]); // Store fetched categories
+  const [categories, setCategories] = useState(""); // Store fetched categories
   const [completed, setCompleted] = useState(false);
   const { user, loading } = useAuth();
   const [error, setError] = useState(null);
@@ -19,9 +19,6 @@ const ToDoForm = ({ onSubmit }) => {
       try {
         const data = await categoryService.getCategories();
         setCategories(data); // Assuming data is an array of category objects
-        if (data.length > 0) {
-          setCategory(data[0]._id); // Default to the first category if available
-        }
       } catch (error) {
         console.error("Error fetching categories:", error);
         setError("Failed to load categories. Please refresh the page.");
@@ -49,7 +46,7 @@ const ToDoForm = ({ onSubmit }) => {
       // Reset the form
       setTitle("");
       setDescription("");
-      setCategory(categories[0]?._id || ""); // Reset to the first category
+      setCategory(""); // Reset to the first category
       setCompleted(false);
     } catch (error) {
       setError("Failed to create ToDo");
@@ -110,7 +107,7 @@ const ToDoForm = ({ onSubmit }) => {
           {categories.length > 0 ? (
             categories.map((cat) => (
               <MenuItem key={cat._id} value={cat._id}>
-                {cat.name}
+                {cat.title}
               </MenuItem>
             ))
           ) : (

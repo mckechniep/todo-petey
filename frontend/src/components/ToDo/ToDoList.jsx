@@ -82,7 +82,7 @@ const ToDoList = ({ newToDo }) => {
   const filteredTodos = todos.filter((todo) => {
     if (selectedCategory === "All") return !todo.completed;
     if (selectedCategory === "Completed") return todo.completed;
-    return todo.category === selectedCategory && !todo.completed;
+    return todo.category?.title === selectedCategory && !todo.completed;
   });
 
   const handleToggleCompleted = async (updatedToDo) => {
